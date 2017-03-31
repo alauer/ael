@@ -1,0 +1,1144 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  dnsowncloudaaronlauernet:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: aaronlauer.net.
+      RecordSets:
+      - Name: owncloud.aaronlauer.net.
+        Type: A
+        AliasTarget:
+          HostedZoneId: !GetAtt [elbownCloud, CanonicalHostedZoneNameID]
+          DNSName: dualstack.owncloud-1592582706.us-east-1.elb.amazonaws.com
+  vpc0acb9b6d:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 172.16.0.0/16
+      InstanceTenancy: default
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+      - Key: Name
+        Value: Team OwnCloud
+  subnetfb0b77b2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 172.16.0.0/24
+      AvailabilityZone: us-east-1d
+      VpcId: !Ref 'vpc0acb9b6d'
+  subnetd79b16fa:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 172.16.1.0/24
+      AvailabilityZone: us-east-1c
+      VpcId: !Ref 'vpc0acb9b6d'
+  igw2a0a834d:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Name
+        Value: ownCloud test
+  dopt790dac1c:
+    Type: AWS::EC2::DHCPOptions
+    Properties:
+      DomainName: ec2.internal
+      DomainNameServers:
+      - AmazonProvidedDNS
+  acl7e606f19:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId: !Ref 'vpc0acb9b6d'
+  rtbc618ada0:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'vpc0acb9b6d'
+  elbownCloud:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Policies:
+      - PolicyName: AWSConsole-SSLNegotiationPolicy-ownCloud-1480701259799
+        PolicyType: SSLNegotiationPolicyType
+        Attributes:
+        - Name: Reference-Security-Policy
+          Value: ELBSecurityPolicy-TLS-1-1-2017-01
+      Subnets:
+      - !Ref 'subnetd79b16fa'
+      - !Ref 'subnetfb0b77b2'
+      HealthCheck:
+        HealthyThreshold: '10'
+        Interval: '30'
+        Target: TCP:80
+        Timeout: '5'
+        UnhealthyThreshold: '2'
+      ConnectionDrainingPolicy:
+        Enabled: 'true'
+        Timeout: '300'
+      ConnectionSettings:
+        IdleTimeout: '60'
+      CrossZone: 'true'
+      SecurityGroups:
+      - !Ref 'sgdefault'
+      - !Ref 'sgamazonhttps'
+      - !Ref 'sghomeall'
+      Listeners:
+      - InstancePort: '80'
+        LoadBalancerPort: '443'
+        Protocol: HTTPS
+        InstanceProtocol: HTTP
+        SSLCertificateId: arn:aws:acm:us-east-1:652749959686:certificate/2594b13c-e05a-4011-900b-64b55b4d027f
+        PolicyNames:
+        - AWSConsole-SSLNegotiationPolicy-ownCloud-1480701259799
+      LBCookieStickinessPolicy:
+      - PolicyName: AWSConsole-LBCookieStickinessPolicy-ownCloud-1480702086295
+        CookieExpirationPeriod: '3600'
+      - PolicyName: AWSConsole-LBCookieStickinessPolicy-ownCloud-1480702108334
+        CookieExpirationPeriod: '900'
+  asgownCloudprod:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones:
+      - us-east-1c
+      - us-east-1d
+      Cooldown: '300'
+      DesiredCapacity: '1'
+      HealthCheckGracePeriod: '300'
+      HealthCheckType: EC2
+      MaxSize: '2'
+      MinSize: '1'
+      VPCZoneIdentifier:
+      - !Ref 'subnetfb0b77b2'
+      - !Ref 'subnetd79b16fa'
+      LaunchConfigurationName: !Ref 'lcownCloudTeamCopy'
+      LoadBalancerNames:
+      - !Ref 'elbownCloud'
+      Tags:
+      - Key: Environment
+        Value: ownCloud
+        PropagateAtLaunch: true
+      MetricsCollection:
+      - Granularity: 1Minute
+        Metrics:
+        - GroupTerminatingInstances
+        - GroupInServiceInstances
+        - GroupPendingInstances
+        - GroupTotalInstances
+        - GroupMaxSize
+        - GroupMinSize
+        - GroupDesiredCapacity
+        - GroupStandbyInstances
+      TerminationPolicies:
+      - Default
+  lcownCloudTeamCopy:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: ami-97f2c980
+      InstanceType: m4.xlarge
+      KeyName: aws-iad-east
+      EbsOptimized: true
+      InstanceMonitoring: 'true'
+      SecurityGroups:
+      - !Ref 'sgamazonhttps'
+      - sg-2c760f51
+      - !Ref 'sghomeall'
+      - !Ref 'sgdefault'
+      - sg-c6740dbb
+      BlockDeviceMappings:
+      - DeviceName: /dev/sda1
+        Ebs:
+          VolumeSize: 20
+  rdsownclouddbrelxteam:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: '0'
+      AllowMajorVersionUpgrade: 'false'
+      AutoMinorVersionUpgrade: 'true'
+      DBInstanceClass: db.r3.large
+      Port: '3306'
+      PubliclyAccessible: 'true'
+      StorageType: aurora
+      BackupRetentionPeriod: '0'
+      MasterUsername: alauer
+      MasterUserPassword: MyPassword
+      PreferredBackupWindow: 09:05-09:35
+      PreferredMaintenanceWindow: tue:08:01-tue:08:31
+      DBName: MyDatabase
+      Engine: aurora
+      EngineVersion: 5.6.10a
+      LicenseModel: general-public-license
+      DBSubnetGroupName: !Ref 'dbsubnetdefaultvpc0acb9b6d'
+      VPCSecurityGroups:
+      - !Ref 'sghomeall'
+      - !Ref 'sgdefault'
+      - !Ref 'sgamazonmysql'
+      Tags:
+      - Key: workload-type
+        Value: other
+  cacheowncloudtams001:
+    Type: AWS::ElastiCache::CacheCluster
+    Properties:
+      AutoMinorVersionUpgrade: 'true'
+      AZMode: single-az
+      CacheNodeType: cache.r3.large
+      Engine: redis
+      EngineVersion: 3.2.4
+      NumCacheNodes: '1'
+      PreferredAvailabilityZone: us-east-1d
+      PreferredMaintenanceWindow: mon:05:00-mon:06:00
+      CacheSubnetGroupName: !Ref 'cachesubnetowncloud'
+      VpcSecurityGroupIds:
+      - !GetAtt [sgdefault, GroupId]
+  cacheowncloudtams002:
+    Type: AWS::ElastiCache::CacheCluster
+    Properties:
+      AutoMinorVersionUpgrade: 'true'
+      AZMode: single-az
+      CacheNodeType: cache.r3.large
+      Engine: redis
+      EngineVersion: 3.2.4
+      NumCacheNodes: '1'
+      PreferredAvailabilityZone: us-east-1c
+      PreferredMaintenanceWindow: mon:05:00-mon:06:00
+      CacheSubnetGroupName: !Ref 'cachesubnetowncloud'
+      VpcSecurityGroupIds:
+      - !GetAtt [sgdefault, GroupId]
+  dbsubnetdefaultvpc0acb9b6d:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Created from the RDS Management Console
+      SubnetIds:
+      - !Ref 'subnetfb0b77b2'
+      - !Ref 'subnetd79b16fa'
+  cachesubnetowncloud:
+    Type: AWS::ElastiCache::SubnetGroup
+    Properties:
+      Description: Team ownCloud
+      SubnetIds:
+      - !Ref 'subnetfb0b77b2'
+      - !Ref 'subnetd79b16fa'
+  sgamazonhttps:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: HTTPS from Amazon
+      VpcId: !Ref 'vpc0acb9b6d'
+  sgamazonmysql:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: MySQL from Amazon
+      VpcId: !Ref 'vpc0acb9b6d'
+  sgdefault:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: default VPC security group
+      VpcId: !Ref 'vpc0acb9b6d'
+  sghomeall:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ALL from home
+      VpcId: !Ref 'vpc0acb9b6d'
+  acl1:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Egress: 'true'
+      Protocol: '-1'
+      RuleAction: allow
+      RuleNumber: '100'
+      NetworkAclId: !Ref 'acl7e606f19'
+  acl2:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Protocol: '-1'
+      RuleAction: allow
+      RuleNumber: '100'
+      NetworkAclId: !Ref 'acl7e606f19'
+  subnetacl1:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref 'acl7e606f19'
+      SubnetId: !Ref 'subnetd79b16fa'
+  subnetacl2:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref 'acl7e606f19'
+      SubnetId: !Ref 'subnetfb0b77b2'
+  gw1:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref 'vpc0acb9b6d'
+      InternetGatewayId: !Ref 'igw2a0a834d'
+  subnetroute1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref 'rtbc618ada0'
+      SubnetId: !Ref 'subnetfb0b77b2'
+  subnetroute3:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref 'rtbc618ada0'
+      SubnetId: !Ref 'subnetd79b16fa'
+  route1:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      RouteTableId: !Ref 'rtbc618ada0'
+      GatewayId: !Ref 'igw2a0a834d'
+    DependsOn: gw1
+  route2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref 'rtbc618ada0'
+      GatewayId: vpce-bfa764d6
+  dchpassoc1:
+    Type: AWS::EC2::VPCDHCPOptionsAssociation
+    Properties:
+      VpcId: !Ref 'vpc0acb9b6d'
+      DhcpOptionsId: !Ref 'dopt790dac1c'
+  ingress1:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 136.56.14.31/32
+  ingress2:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 205.251.233.160/28
+  ingress3:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 205.251.233.176/29
+  ingress4:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 205.251.233.32/28
+  ingress5:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 205.251.233.48/29
+  ingress6:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 205.251.234.32/28
+  ingress7:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 207.171.167.101/32
+  ingress8:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 207.171.167.25/32
+  ingress9:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 207.171.167.26/32
+  ingress10:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 207.171.172.6/32
+  ingress11:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 207.171.180.101/32
+  ingress12:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 207.171.180.102/32
+  ingress13:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 207.171.180.103/32
+  ingress14:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 207.171.191.60/32
+  ingress15:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 207.171.191.61/32
+  ingress16:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 207.171.191.62/32
+  ingress17:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.239.98.0/24
+  ingress18:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.239.99.0/24
+  ingress19:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.193.0/29
+  ingress20:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.193.128/29
+  ingress21:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.194.0/28
+  ingress22:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.194.128/28
+  ingress23:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.194.144/28
+  ingress24:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.194.16/28
+  ingress25:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.194.24/29
+  ingress26:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.194.64/28
+  ingress27:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.194.80/28
+  ingress28:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.194.88/29
+  ingress29:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.196.0/24
+  ingress30:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.197.0/24
+  ingress31:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.217.16/29
+  ingress32:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.217.64/28
+  ingress33:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.217.8/29
+  ingress34:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.217.80/29
+  ingress35:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.230.176/29
+  ingress36:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.230.184/29
+  ingress37:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 54.240.230.240/29
+  ingress38:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 72.21.196.64/29
+  ingress39:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 72.21.196.64/30
+  ingress40:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 72.21.196.68/32
+  ingress41:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 72.21.198.64/29
+  ingress42:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 72.21.217.0/24
+  ingress43:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 87.238.80.64/29
+  ingress44:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 87.238.80.68/32
+  ingress45:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 87.238.80.69/32
+  ingress46:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 87.238.80.71/32
+  ingress47:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 87.238.84.64/29
+  ingress48:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 87.238.84.68/32
+  ingress49:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 87.238.84.69/32
+  ingress50:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 136.56.14.31/32
+  ingress51:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 205.251.233.160/28
+  ingress52:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 205.251.233.176/29
+  ingress53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 205.251.233.32/28
+  ingress54:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 205.251.233.48/29
+  ingress55:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 205.251.234.32/28
+  ingress56:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 207.171.167.101/32
+  ingress57:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 207.171.167.25/32
+  ingress58:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 207.171.167.26/32
+  ingress59:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 207.171.172.6/32
+  ingress60:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 207.171.180.101/32
+  ingress61:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 207.171.180.102/32
+  ingress62:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 207.171.180.103/32
+  ingress63:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 207.171.191.60/32
+  ingress64:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 207.171.191.61/32
+  ingress65:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 207.171.191.62/32
+  ingress66:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.239.98.0/24
+  ingress67:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.239.99.0/24
+  ingress68:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.193.0/29
+  ingress69:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.193.128/29
+  ingress70:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.194.0/28
+  ingress71:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.194.128/28
+  ingress72:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.194.144/28
+  ingress73:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.194.16/28
+  ingress74:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.194.24/29
+  ingress75:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.194.64/28
+  ingress76:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.194.80/28
+  ingress77:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.194.88/29
+  ingress78:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.196.0/24
+  ingress79:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.197.0/24
+  ingress80:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.217.16/29
+  ingress81:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.217.64/28
+  ingress82:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.217.8/29
+  ingress83:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.217.80/29
+  ingress84:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.230.176/29
+  ingress85:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.230.184/29
+  ingress86:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 54.240.230.240/29
+  ingress87:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 72.21.196.64/29
+  ingress88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 72.21.196.64/30
+  ingress89:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 72.21.196.68/32
+  ingress90:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 72.21.198.64/29
+  ingress91:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 72.21.217.0/24
+  ingress92:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 87.238.80.64/29
+  ingress93:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 87.238.80.68/32
+  ingress94:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 87.238.80.69/32
+  ingress95:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 87.238.80.71/32
+  ingress96:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 87.238.84.64/29
+  ingress97:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 87.238.84.68/32
+  ingress98:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 87.238.84.69/32
+  ingress99:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sgdefault'
+      IpProtocol: '-1'
+      SourceSecurityGroupId: !Ref 'sgdefault'
+      SourceSecurityGroupOwnerId: '652749959686'
+  ingress100:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sghomeall'
+      IpProtocol: tcp
+      FromPort: '80'
+      ToPort: '80'
+      CidrIp: 136.56.14.31/32
+  ingress101:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sghomeall'
+      IpProtocol: tcp
+      FromPort: '22'
+      ToPort: '22'
+      CidrIp: 136.56.14.31/32
+  ingress102:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sghomeall'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 136.56.14.31/32
+  ingress103:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sghomeall'
+      IpProtocol: icmp
+      FromPort: '-1'
+      ToPort: '-1'
+      CidrIp: 136.56.14.31/32
+  egress1:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref 'sgamazonhttps'
+      IpProtocol: '-1'
+      CidrIp: 0.0.0.0/0
+  egress2:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref 'sgamazonmysql'
+      IpProtocol: '-1'
+      CidrIp: 0.0.0.0/0
+  egress3:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref 'sgdefault'
+      IpProtocol: '-1'
+      CidrIp: 0.0.0.0/0
+  egress4:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref 'sghomeall'
+      IpProtocol: '-1'
+      CidrIp: 0.0.0.0/0
+Description: ownCloud
