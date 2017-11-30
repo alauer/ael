@@ -120,7 +120,7 @@ Resources:
       FromPort: '443'
       ToPort: '443'
       CidrIp: 136.56.39.181/32
-  ingress10:
+  ingress12:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref 'sghomessh'
