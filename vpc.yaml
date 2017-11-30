@@ -94,3 +94,37 @@ Resources:
         Ref: InternetGateway
       RouteTableId:
         Ref: RouteTable
+  sghomeweb:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: WEB ports from home
+      VpcId: !Ref 'VPC'
+  sghomessh:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SSH ports from home
+      VpcId: !Ref 'VPC'
+  ingress10:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sghomeweb'
+      IpProtocol: tcp
+      FromPort: '80'
+      ToPort: '80'
+      CidrIp: 136.56.39.181/32
+  ingress11:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sghomeweb'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 136.56.39.181/32
+  ingress10:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'sghomessh'
+      IpProtocol: tcp
+      FromPort: '22'
+      ToPort: '22'
+      CidrIp: 136.56.39.181/32
