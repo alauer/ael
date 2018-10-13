@@ -5,10 +5,11 @@ provider "aws" {
   region = "us-west-2"
 }
 
+
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
-  name = "ael-test-tf"
+  name = "ael-api-tf"
 
   cidr = "10.0.0.0/16"
 
@@ -19,7 +20,11 @@ module "vpc" {
   assign_generated_ipv6_cidr_block = false
 
   public_subnet_tags = {
-    Name = "ael-test-public"
+    Name = "ael-api-public"
+  }
+
+  private_subnet_tags = {
+    Name = "ael-api-private"
   }
 
   tags = {
@@ -28,10 +33,9 @@ module "vpc" {
   }
 
   vpc_tags = {
-    Name = "ael-test-tf"
+    Name = "ael-api-tf"
   }
 }
-
 
 resource "aws_security_group" "allow_all" {
   name = "allow_all_ael"
