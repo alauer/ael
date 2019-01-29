@@ -72,7 +72,7 @@ resource "aws_security_group" "allow_all2" {
     from_port = 0
     to_port = 0
     protocol = "-1"
-    cidr_blocks = ["136.41.224.23/32","${module.vpc1.vpc_cidr_block}"]
+    cidr_blocks = ["136.41.224.23/32","${module.vpc1.vpc_cidr_block}"]   #This needs to be in a variables file
   }
 
   egress {
@@ -93,7 +93,7 @@ resource "aws_security_group" "allow_all1" {
     from_port = 0
     to_port = 0
     protocol = "-1"
-    cidr_blocks = ["136.41.224.23/32","${module.vpc2.vpc_cidr_block}"]
+    cidr_blocks = ["136.41.224.23/32","${module.vpc2.vpc_cidr_block}"]   #This needs to be in a variables file
   }
 
   egress {
