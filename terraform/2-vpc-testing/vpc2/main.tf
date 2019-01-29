@@ -15,6 +15,9 @@ module "vpc2" {
   azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
   public_subnets  = ["10.10.101.0/24", "10.10.102.0/24", "10.10.103.0/24"]
 
+  enable_vpn_gateway = true
+
+
   assign_generated_ipv6_cidr_block = false
 
   public_subnet_tags = {
@@ -22,8 +25,8 @@ module "vpc2" {
   }
 
   tags = {
+    Terraform = "true"
     Owner       = "aaron.lauer"
-    Environment = "dev"
   }
 
   vpc_tags = {
@@ -41,6 +44,8 @@ module "vpc1" {
   azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 
+  enable_vpn_gateway = true
+
   assign_generated_ipv6_cidr_block = false
 
   public_subnet_tags = {
@@ -48,8 +53,8 @@ module "vpc1" {
   }
 
   tags = {
+    Terraform = "true"
     Owner       = "aaron.lauer"
-    Environment = "dev"
   }
 
   vpc_tags = {

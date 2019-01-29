@@ -44,3 +44,9 @@ output "public_subnets2" {
   description = "List of IDs of public subnets in VPC2"
   value       = ["${module.vpc2.public_subnets}"]
 }
+
+# DXG
+output "ael-kb-dxg1" {
+  description = "List of IDs of DXG"
+  value = ["${aws_dx_gateway.ael-kb-test.id}"]
+}
