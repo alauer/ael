@@ -4,11 +4,11 @@ provider "azurerm" {
 
 resource "azurerm_express_route_circuit" "ael-kb-exprt" {
   name                  = "ael-expressRoute1"
-  resource_group_name   = "us-west2-dev"
-  location              = "westus2"
-  service_provider_name = "Equinix"
-  peering_location      = "Seattle"
-  bandwidth_in_mbps     = 50
+  resource_group_name   = "us-west2-dev" #This needs to be in a variables file
+  location              = "westus2" #This needs to be in a variables file
+  service_provider_name = "Equinix" #This needs to be in a variables file
+  peering_location      = "Seattle" #This needs to be in a variables file
+  bandwidth_in_mbps     = 50 #This needs to be in a variables file
 
   sku {
     tier   = "Standard"
