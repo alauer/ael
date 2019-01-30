@@ -3,6 +3,7 @@ provider "aws" {
     role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
   }
   region = "us-west-2"
+  version = "~> 1.57"
 }
 
 module "vpc2" {

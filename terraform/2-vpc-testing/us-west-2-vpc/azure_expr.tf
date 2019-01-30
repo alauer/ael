@@ -1,3 +1,7 @@
+provider "azurerm" {
+  version = "~> 1.21"
+}
+
 resource "azurerm_express_route_circuit" "ael-kb-exprt" {
   name                  = "ael-expressRoute1"
   resource_group_name   = "us-west2-dev"
