@@ -2,7 +2,7 @@ provider "aws" {
   assume_role {
     role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
   }
-  region = "us-west-2"
+  region = "us-east-1"
 }
 
 module "vpc" {
@@ -12,7 +12,7 @@ module "vpc" {
 
   cidr = "10.0.0.0/16"
 
-  azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
+  azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 
   assign_generated_ipv6_cidr_block = false
