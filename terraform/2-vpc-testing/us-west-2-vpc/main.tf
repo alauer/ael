@@ -1,17 +1,27 @@
+variable "aws_region" {}
+variable "office_ip" {}
+
+variable "vpc1_name" {}
+variable "vpc1_cidr" {}
+
+variable "vpc2_name" {}
+variable "vpc2_cidr" {}
+
+
 provider "aws" {
   assume_role {
     role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
   }
-  region = "us-west-2"
+  region = "${var.aws_region}"
   version = "~> 1.57"
 }
 
 module "vpc2" {
   source = "terraform-aws-modules/vpc/aws"
 
-  name = "ael-kb-test2"
+  name = "ael-kb-test2" #This needs to be in a variables file
 
-  cidr = "10.10.0.0/16"
+  cidr = "10.10.0.0/16" #This needs to be in a variables file
 
   azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
   public_subnets  = ["10.10.101.0/24", "10.10.102.0/24", "10.10.103.0/24"]
@@ -38,9 +48,9 @@ module "vpc2" {
 module "vpc1" {
   source = "terraform-aws-modules/vpc/aws"
 
-  name = "ael-kb-test1"
+  name = "ael-kb-test1" #This needs to be in a variables file
 
-  cidr = "10.0.0.0/16"
+  cidr = "10.0.0.0/16" #This needs to be in a variables file
 
   azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
@@ -73,7 +83,7 @@ resource "aws_security_group" "allow_all2" {
     from_port = 0
     to_port = 0
     protocol = "-1"
-    cidr_blocks = ["136.41.224.23/32","${module.vpc1.vpc_cidr_block}"]   #This needs to be in a variables file
+    cidr_blocks = ["${var.office_ip}","${module.vpc1.vpc_cidr_block}"]
   }
 
   egress {
@@ -94,7 +104,7 @@ resource "aws_security_group" "allow_all1" {
     from_port = 0
     to_port = 0
     protocol = "-1"
-    cidr_blocks = ["136.41.224.23/32","${module.vpc2.vpc_cidr_block}"]   #This needs to be in a variables file
+    cidr_blocks = ["${var.office_ip}","${module.vpc2.vpc_cidr_block}"]   #This needs to be in a variables file
   }
 
   egress {
