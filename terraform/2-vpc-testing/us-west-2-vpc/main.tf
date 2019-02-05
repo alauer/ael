@@ -1,7 +1,11 @@
-variable "aws_region" {}
+variable "aws_region" {
+  default = "us-east-1"
+}
 variable "office_ip" {}
 
-variable "vpc1_name" {}
+variable "vpc1_name" {
+  default = "pureport-test-"
+}
 variable "vpc1_cidr" {
   default = "10.0.0.0/16"
 }
@@ -17,6 +21,13 @@ variable "vpc2_public_subnets" {
   default = ["10.10.101.0/24", "10.10.102.0/24", "10.10.103.0/24"]
 }
 
+variable "dx_connection_id_primary" {}
+variable "dx_connection_id_secondary" {}
+variable "bgp_pureport_asn" {}
+variable "pureport_vlan_primary" {}
+variable "pureport_vlan_secondary" {}
+variable "bgp_auth_key_primary" {}
+variable "bgp_auth_key_secondary" {}
 
 provider "aws" {
   assume_role {
@@ -33,7 +44,7 @@ module "vpc2" {
 
   cidr = "${var.vpc2_cidr}"
 
-  azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
+  azs             = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
   public_subnets  = "${var.vpc2_public_subnets}"
 
   enable_vpn_gateway = true
@@ -62,7 +73,7 @@ module "vpc1" {
 
   cidr = "${var.vpc1_cidr}"
 
-  azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
+  azs             = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
   public_subnets  = "${var.vpc1_public_subnets}"
 
   enable_vpn_gateway = true
@@ -114,7 +125,7 @@ resource "aws_security_group" "allow_all1" {
     from_port = 0
     to_port = 0
     protocol = "-1"
-    cidr_blocks = ["${var.office_ip}","${module.vpc2.vpc_cidr_block}"]   #This needs to be in a variables file
+    cidr_blocks = ["${var.office_ip}","${module.vpc2.vpc_cidr_block}"]
   }
 
   egress {

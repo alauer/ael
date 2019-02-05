@@ -1,3 +1,5 @@
+variable "resource_group_name" {}
+
 provider "azurerm" {
   version = "~> 1.21"
 }
@@ -21,8 +23,8 @@ resource "azurerm_express_route_circuit" "ael-kb-exprt" {
   }
 }
 
-module "vnet" {
-  source              = "Azure/vnet/azurerm"
+module "network" {
+  source              = "Azure/network/azurerm"
   resource_group_name = "us-west2-dev"
   location            = "westus2"
   address_space       = "10.20.0.0/16"
@@ -33,4 +35,37 @@ module "vnet" {
     Terraform = "true"
     Owner     = "aaron.lauer"
   }
+}
+
+resource "azurerm_subnet" "subnet" {
+  name  = "subnet1"
+  address_prefix = "10.20.1.0/24"
+  resource_group_name = "${var.resource_group_name}"
+  virtual_network_name = "ael-kb-test1"
+}
+
+resource "azurerm_network_security_group" "ssh" {
+  depends_on          = ["module.network"]
+  name                = "ssh"
+  location            = "westus2"
+  resource_group_name = "us-west2-dev"
+
+  security_rule {
+    name                       = "allow_all_ael"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+#    source_address_prefixes      = "${var.vpc1_public_subnets}"
+    source_address_prefixes    = "${list("${var.vpc1_cidr}","${var.vpc2_cidr}","${var.office_ip}")}"
+    destination_address_prefix = "*"
+  }
+
+}
+
+resource "azurerm_subnet_network_security_group_association" "ssh" {
+  subnet_id                 = "${azurerm_subnet.subnet.id}"
+  network_security_group_id = "${azurerm_network_security_group.ssh.id}"
 }
