@@ -3,9 +3,7 @@ variable "aws_region" {
 }
 variable "office_ip" {}
 
-variable "vpc1_name" {
-  default = "pureport-test-"
-}
+variable "vpc1_name" {}
 variable "vpc1_cidr" {
   default = "10.0.0.0/16"
 }
@@ -48,7 +46,8 @@ module "vpc2" {
   public_subnets  = "${var.vpc2_public_subnets}"
 
   enable_vpn_gateway = true
-
+  enable_dns_hostnames = true
+  enable_dns_support = true
 
   assign_generated_ipv6_cidr_block = false
 
@@ -77,6 +76,8 @@ module "vpc1" {
   public_subnets  = "${var.vpc1_public_subnets}"
 
   enable_vpn_gateway = true
+  enable_dns_hostnames = true
+  enable_dns_support = true
 
   assign_generated_ipv6_cidr_block = false
 

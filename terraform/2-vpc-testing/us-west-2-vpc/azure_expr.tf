@@ -58,7 +58,6 @@ resource "azurerm_network_security_group" "ssh" {
     protocol                   = "*"
     source_port_range          = "*"
     destination_port_range     = "*"
-#    source_address_prefixes      = "${var.vpc1_public_subnets}"
     source_address_prefixes    = "${list("${var.vpc1_cidr}","${var.vpc2_cidr}","${var.office_ip}")}"
     destination_address_prefix = "*"
   }
