@@ -80,9 +80,8 @@ resource "aws_subnet" "public" {
   count                           = "3"
   vpc_id                          = "${aws_vpc.this.id}"
   cidr_block                      = "${cidrsubnet(aws_vpc.this.cidr_block, 8, count.index)}"
-  ipv6_cidr_block                 = "${cidrsubnet(aws_vpc.this.ipv6_cidr_block, 8, count.index)}"
   map_public_ip_on_launch         = true
-  assign_ipv6_address_on_creation = true
+  assign_ipv6_address_on_creation = false
   availability_zone               = "${element(data.aws_availability_zones.available.names, count.index)}"
 
   tags {
