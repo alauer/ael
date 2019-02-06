@@ -1,11 +1,4 @@
-variable "azure_resource_group_name" {}
-variable "azure_location" {}
-variable "azure_peering_location"{
-  type = "map"
-  default = {
-    "westus2" = "Seattle"
-  }
-}
+
 
 
 
@@ -19,7 +12,7 @@ resource "azurerm_express_route_circuit" "ael-kb-exprt" {
   resource_group_name   = "${var.azure_resource_group_name}"
   location              = "${var.azure_location}"           #This needs to be in a variables file
   service_provider_name = "Equinix"           #This needs to be in a variables file
-  peering_location      = "${lookup(var.azure_peering_location, var.location)}"           #This needs to be in a variables file
+  peering_location      = "${lookup(var.azure_peering_location, var.azure_location)}"           #This needs to be in a variables file
   bandwidth_in_mbps     = 50                  #hardcode this to save money in dev account
 
   sku {
@@ -58,7 +51,7 @@ resource "azurerm_network_security_group" "ssh" {
   depends_on          = ["module.network"]
   name                = "ssh"
   location            = "${var.azure_location}"
-  resource_group_name = "${var.resource_group_name}"
+  resource_group_name = "${var.azure_resource_group_name}"
 
   security_rule {
     name                       = "allow_all_ael"
@@ -68,7 +61,7 @@ resource "azurerm_network_security_group" "ssh" {
     protocol                   = "*"
     source_port_range          = "*"
     destination_port_range     = "*"
-    source_address_prefixes    = "${list("${var.vpc1_cidr}","${var.vpc2_cidr}","${var.office_ip}")}"
+    source_address_prefixes    = "${list("${var.vpc1_cidr}","${var.office_ip}")}"
     destination_address_prefix = "*"
   }
 
