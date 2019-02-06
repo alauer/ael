@@ -1,4 +1,14 @@
-variable "resource_group_name" {}
+variable "azure_resource_group_name" {}
+variable "azure_location" {}
+variable "azure_peering_location"{
+  type = "map"
+  default = {
+    "westus2" = "Seattle"
+  }
+}
+
+
+
 
 provider "azurerm" {
   version = "~> 1.21"
@@ -6,11 +16,11 @@ provider "azurerm" {
 
 resource "azurerm_express_route_circuit" "ael-kb-exprt" {
   name                  = "ael-expressRoute1"
-  resource_group_name   = "us-west2-dev"      #This needs to be in a variables file
-  location              = "westus2"           #This needs to be in a variables file
+  resource_group_name   = "${var.azure_resource_group_name}"
+  location              = "${var.azure_location}"           #This needs to be in a variables file
   service_provider_name = "Equinix"           #This needs to be in a variables file
-  peering_location      = "Seattle"           #This needs to be in a variables file
-  bandwidth_in_mbps     = 50                  #This needs to be in a variables file
+  peering_location      = "${lookup(var.azure_peering_location, var.location)}"           #This needs to be in a variables file
+  bandwidth_in_mbps     = 50                  #hardcode this to save money in dev account
 
   sku {
     tier   = "Standard"
@@ -25,8 +35,8 @@ resource "azurerm_express_route_circuit" "ael-kb-exprt" {
 
 module "network" {
   source              = "Azure/network/azurerm"
-  resource_group_name = "us-west2-dev"
-  location            = "westus2"
+  resource_group_name = "${var.azure_resource_group_name}"
+  location            = "${var.azure_location}"
   address_space       = "10.20.0.0/16"
   subnet_prefixes     = ["10.20.1.0/24", "10.20.2.0/24", "10.20.3.0/24"]
   subnet_names        = ["subnet1", "subnet2", "subnet3"]
@@ -40,15 +50,15 @@ module "network" {
 resource "azurerm_subnet" "subnet" {
   name  = "subnet1"
   address_prefix = "10.20.1.0/24"
-  resource_group_name = "${var.resource_group_name}"
+  resource_group_name = "${var.azure_resource_group_name}"
   virtual_network_name = "ael-kb-test1"
 }
 
 resource "azurerm_network_security_group" "ssh" {
   depends_on          = ["module.network"]
   name                = "ssh"
-  location            = "westus2"
-  resource_group_name = "us-west2-dev"
+  location            = "${var.azure_location}"
+  resource_group_name = "${var.resource_group_name}"
 
   security_rule {
     name                       = "allow_all_ael"

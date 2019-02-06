@@ -1,3 +1,12 @@
+variable "dx_connection_id_primary" {}
+variable "dx_connection_id_secondary" {}
+variable "bgp_pureport_asn" {}
+variable "pureport_vlan_primary" {}
+variable "pureport_vlan_secondary" {}
+variable "bgp_auth_key_primary" {}
+variable "bgp_auth_key_secondary" {}
+
+
 resource "aws_dx_gateway" "ael-kb-test" {
   name            = "ael-kb-dxg1"
   amazon_side_asn = "64512"
