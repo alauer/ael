@@ -1,4 +1,15 @@
-
+variable "azure_resource_group_name" {
+  default = "ael-test-personal"
+}
+variable "azure_location" {
+  default = "eastus"
+}
+variable "azure_peering_location"{
+  type = "map"
+  default = {
+    "westus2" = "Seattle"
+  }
+}
 
 
 
@@ -26,19 +37,19 @@ resource "azurerm_express_route_circuit" "ael-kb-exprt" {
   }
 }
 
-module "network" {
-  source              = "Azure/network/azurerm"
-  resource_group_name = "${var.azure_resource_group_name}"
-  location            = "${var.azure_location}"
-  address_space       = "10.20.0.0/16"
-  subnet_prefixes     = ["10.20.1.0/24", "10.20.2.0/24", "10.20.3.0/24"]
-  subnet_names        = ["subnet1", "subnet2", "subnet3"]
+#module "network" {
+#  source              = "Azure/network/azurerm"
+#  resource_group_name = "${var.azure_resource_group_name}"
+#  location            = "${var.azure_location}"
+#  address_space       = "10.20.0.0/16"
+#  subnet_prefixes     = ["10.20.1.0/24", "10.20.2.0/24", "10.20.3.0/24"]
+#  subnet_names        = ["subnet1", "subnet2", "subnet3"]
 
-  tags = {
-    Terraform = "true"
-    Owner     = "aaron.lauer"
-  }
-}
+#  tags = {
+#    Terraform = "true"
+#    Owner     = "aaron.lauer"
+#  }
+#}
 
 resource "azurerm_subnet" "subnet" {
   name  = "subnet1"
