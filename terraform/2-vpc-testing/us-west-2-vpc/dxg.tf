@@ -1,4 +1,4 @@
-
+/*
 provider "aws" {
   assume_role {
     role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
@@ -17,11 +17,14 @@ resource "aws_dx_gateway_association" "ael-kb-test-gateway-attach1" {
   dx_gateway_id = "${aws_dx_gateway.ael-kb-test.id}"
   vpn_gateway_id = "${module.vpc-us-west-2.vgw_id}"
 }
+*/
 
+/*
 resource "aws_dx_gateway_association" "ael-kb-test-gateway-attach2" {
   dx_gateway_id = "${aws_dx_gateway.ael-kb-test.id}"
   vpn_gateway_id = "${module.vpc-eu-west-1.vgw_id}"
 }
+*/
 
 #resource "aws_dx_private_virtual_interface" "vif-ael-kb-primary" {
 #  connection_id = "${var.dx_connection_id_primary}"

@@ -17,7 +17,11 @@ variable "vpn_gateway_id" {
 }
 
 variable "create_vpc" {
-  default = "true"
+  default = "false"
+}
+
+variable "number_of_subnets" {
+  default = "3"
 }
 
 variable "amazon_side_asn" {
