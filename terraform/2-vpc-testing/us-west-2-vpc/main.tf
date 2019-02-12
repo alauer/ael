@@ -1,12 +1,12 @@
-module "vpc-us-west-2" {
+module "vpc-us-east-1" {
   source = "modules/pureport_vpc"
-  region = "us-west-2"
+  region = "us-east-1"
   role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
-  vpc_name = "vpc-us-west-2-ael"
-  vpc_cidr = "10.20.0.0/16"
+  vpc_name = "vpc-us-east-1-ael"
+  vpc_cidr = "10.10.0.0/16"
   number_of_subnets = 2
-  enable_vpn_gateway = false
-  create_vpc = false
+  enable_vpn_gateway = true
+  create_vpc = true
 }
 
 module "vpc-eu-west-1" {
@@ -14,8 +14,8 @@ module "vpc-eu-west-1" {
   region = "eu-west-1"
   role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
   vpc_name = "vpc-eu-west-1-ael"
-  vpc_cidr = "10.10.0.0/16"
-  number_of_subnets = 2
-  enable_vpn_gateway = false
+  vpc_cidr = "10.20.0.0/16"
+  number_of_subnets = 1
+  enable_vpn_gateway = true
   create_vpc = true
 }

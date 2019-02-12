@@ -3,18 +3,18 @@ provider "aws" {
   assume_role {
     role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
   }
-  region = "us-west-2"
+  region = "us-east-1"
 }
 
-resource "aws_dx_gateway" "ael-kb-test" {
-  name            = "ael-kb-dxg1"
+resource "aws_dx_gateway" "ael-demo-dxg" {
+  name            = "ael-demo-dxg1"
   amazon_side_asn = "64512"
 }
 
 
 
-resource "aws_dx_gateway_association" "ael-kb-test-gateway-attach1" {
-  dx_gateway_id = "${aws_dx_gateway.ael-kb-test.id}"
+resource "aws_dx_gateway_association" "ael-demo-dxg-gateway-attach-use1" {
+  dx_gateway_id = "${aws_dx_gateway.ael-demo-dxg.id}"
   vpn_gateway_id = "${module.vpc-us-west-2.vgw_id}"
 }
 */

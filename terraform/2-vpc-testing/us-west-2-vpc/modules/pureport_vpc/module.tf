@@ -83,7 +83,6 @@ resource "aws_vpn_gateway_attachment" "this" {
 
 resource "aws_subnet" "public" {
   count                           = "${var.create_vpc > 0 ? var.number_of_subnets : 0}"
-  #count = "${var.create_vpc && length(var.public_subnets) > 0 && (!var.one_nat_gateway_per_az || length(var.number_of_subnets) >= length(data.aws_availability_zones.available.names)) ? length(var.number_of_subnets) : 0}"
   vpc_id                          = "${aws_vpc.this.id}"
   cidr_block                      = "${cidrsubnet(aws_vpc.this.cidr_block, 8, count.index)}"
   map_public_ip_on_launch         = true
