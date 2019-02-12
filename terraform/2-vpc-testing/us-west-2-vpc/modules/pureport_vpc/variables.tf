@@ -2,6 +2,8 @@ variable "region" {}
 variable "role_arn" {}
 variable "vpc_name" {}
 variable "vpc_cidr" {}
+variable "dxg_id" {}
+
 variable "office_ip" {
   default = "136.41.224.23/32"
 }
@@ -9,6 +11,10 @@ variable "office_ip" {
 variable "enable_vpn_gateway" {
   description = "Should be true if you want to create a new VPN Gateway resource and attach it to the VPC"
   default     = false
+}
+
+variable "enable_dx_gateway" {
+  default = false
 }
 
 variable "vpn_gateway_id" {

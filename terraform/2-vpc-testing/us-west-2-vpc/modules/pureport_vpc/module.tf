@@ -73,11 +73,19 @@ resource "aws_vpn_gateway" "this" {
   }
 }
 
-resource "aws_vpn_gateway_attachment" "this" {
-  count = "${var.vpn_gateway_id != "" ? 1 : 0}"
+#resource "aws_vpn_gateway_attachment" "this" {
+#  count = "${var.vpn_gateway_id != "" ? 1 : 0}"
 
-  vpc_id         = "${local.vpc_id}"
-  vpn_gateway_id = "${var.vpn_gateway_id}"
+#  vpc_id         = "${local.vpc_id}"
+#  vpn_gateway_id = "${var.vpn_gateway_id}"
+#}
+
+resource "aws_dx_gateway_association" "this" {
+  #count = "${var.enable_dx_gateway && var.enable_vpn_gateway ? 1 : 0}"
+  count = "${var.create_vpc && var.enable_dx_gateway && var.enable_vpn_gateway ? 1 : 0}"
+  dx_gateway_id = "${var.dxg_id}"
+  vpn_gateway_id = "${aws_vpn_gateway.this.id}"
+  #vpn_gateway_id = "${var.vpn_gateway_id}"
 }
 
 

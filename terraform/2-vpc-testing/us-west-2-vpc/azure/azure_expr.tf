@@ -2,14 +2,14 @@ variable "azure_resource_group_name" {
   default = "us-east-sol-eng"
 }
 variable "azure_location" {
-  default = "eastus"
+  default = "eastus2"
 }
 variable "azure_peering_location"{
   type = "map"
   default = {
     "westus2" = "Seattle"
-    "eastus" = "Asburn"
-    "eastus2" = "Ashburn"
+    "eastus" = "Washington DC"
+    "eastus2" = "Washington DC"
   }
 }
 
@@ -25,11 +25,10 @@ provider "azurerm" {
 
 
 resource "azurerm_virtual_network" "test" {
-  name                = "virtualNetwork1"
+  name                = "ael-demo-vnet-useast2"
   location            = "${var.azure_location}"
   resource_group_name = "${var.azure_resource_group_name}"
   address_space       = ["10.100.0.0/16"]
-  dns_servers         = ["10.100.0.4", "10.100.0.5"]
 
   tags {
     Terraform = "true"
@@ -38,17 +37,24 @@ resource "azurerm_virtual_network" "test" {
 }
 
 resource "azurerm_subnet" "test" {
-  name                 = "testsubnet"
+  name                 = "ael-demo-subnet1"
   resource_group_name  = "${var.azure_resource_group_name}"
   virtual_network_name = "${azurerm_virtual_network.test.name}"
   address_prefix       = "10.100.1.0/24"
 
 }
 
+resource "azurerm_subnet" "GatewaySubnet" {
+  name                 = "GatewaySubnet"
+  resource_group_name  = "${var.azure_resource_group_name}"
+  virtual_network_name = "${azurerm_virtual_network.test.name}"
+  address_prefix       = "10.100.254.0/26"
+}
+
 
 
 resource "azurerm_network_security_group" "ssh" {
-  name                = "ssh"
+  name                = "ael-ssh"
   location            = "${var.azure_location}"
   resource_group_name = "${var.azure_resource_group_name}"
 
@@ -60,7 +66,7 @@ resource "azurerm_network_security_group" "ssh" {
     protocol                   = "*"
     source_port_range          = "*"
     destination_port_range     = "*"
-    source_address_prefixes    = "${list(var.office_ip)}"
+    source_address_prefixes    = ["${var.office_ip}", "10.10.0.0/16", "10.20.0.0/16"]
     destination_address_prefix = "*"
   }
 
@@ -72,13 +78,13 @@ resource "azurerm_subnet_network_security_group_association" "ssh" {
 }
 
 
-/*resource "azurerm_express_route_circuit" "ael-kb-exprt" {
+resource "azurerm_express_route_circuit" "ael-demo-exprt" {
   name                  = "ael-expressRoute1"
   resource_group_name   = "${var.azure_resource_group_name}"
   location              = "${var.azure_location}"           #This needs to be in a variables file
   service_provider_name = "Equinix"           #This needs to be in a variables file
   peering_location      = "${lookup(var.azure_peering_location, var.azure_location)}"           #This needs to be in a variables file
-  bandwidth_in_mbps     = 50                  #hardcode this to save money in dev account
+  bandwidth_in_mbps     = 100                  #hardcode this to save money in dev account
 
   sku {
     tier   = "Standard"
@@ -89,4 +95,31 @@ resource "azurerm_subnet_network_security_group_association" "ssh" {
     Terraform = "true"
     Owner     = "aaron.lauer"
   }
-}*/
+}
+
+resource "azurerm_public_ip" "test" {
+  name                = "ael-publicip1"
+  resource_group_name   = "${var.azure_resource_group_name}"
+  location              = "${var.azure_location}"
+
+  allocation_method = "Dynamic"
+}
+
+resource "azurerm_virtual_network_gateway" "vnetGateway" {
+  name = "ael-vnet-gw1"
+  resource_group_name   = "${var.azure_resource_group_name}"
+  location              = "${var.azure_location}"
+
+  type = "ExpressRoute"
+  enable_bgp = true
+  sku = "Standard"
+
+  ip_configuration {
+    name                          = "vnetGatewayConfig"
+    public_ip_address_id          = "${azurerm_public_ip.test.id}"
+    private_ip_address_allocation = "Dynamic"
+    subnet_id                     = "${azurerm_subnet.GatewaySubnet.id}"
+  }
+
+
+}

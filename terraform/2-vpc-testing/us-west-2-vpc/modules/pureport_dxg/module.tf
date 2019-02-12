@@ -15,6 +15,11 @@ resource "aws_dx_gateway" "this" {
   count = "${var.dxg_name != "" ? 1 : 0}"
   name            = "${var.dxg_name}"
   amazon_side_asn = "${var.amazon_side_asn}"
+
+  timeouts {
+    create = "20m"
+    delete = "20m"
+  }
 }
 
 resource "aws_dx_private_virtual_interface" "primary" {
@@ -30,6 +35,12 @@ resource "aws_dx_private_virtual_interface" "primary" {
   bgp_auth_key = "${var.bgp_auth_key_primary}"   #This needs to be in a variables file
   address_family = "ipv4"
   bgp_asn = "${var.bgp_pureport_asn}"   #This needs to be in a variables file
+
+  timeouts {
+    create = "20m"
+    delete = "20m"
+    update = "20m"
+  }
 }
 
 resource "aws_dx_private_virtual_interface" "secondary" {
@@ -45,4 +56,10 @@ resource "aws_dx_private_virtual_interface" "secondary" {
   bgp_auth_key = "${var.bgp_auth_key_secondary}"   #This needs to be in a variables file
   address_family = "ipv4"
   bgp_asn = "${var.bgp_pureport_asn}"   #This needs to be in a variables file
+
+  timeouts {
+    create = "20m"
+    delete = "20m"
+    update = "20m"
+  }
 }

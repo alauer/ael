@@ -1,23 +1,16 @@
 variable "region" {}
 variable "role_arn" {}
-variable "dxg_name" {}
+variable "dxg_name" {
+  description = "The "
+}
 variable "directconnect_primary_id" {
   description = "ID of Direct Connect Primary Connection"
+  default =""
 }
 
 variable "directconnect_secondary_id" {
   description = "ID of Direct Connect Secondary Connection"
   default = ""
-}
-
-variable "office_ip" {
-  default = "136.41.224.23/32"
-}
-
-
-variable "vpn_gateway_id" {
-  description = "ID of VPN Gateway to attach to the VPC"
-  default     = ""
 }
 
 variable "amazon_side_asn" {
@@ -35,4 +28,11 @@ variable "bgp_auth_key_secondary"{
 
 variable "bgp_pureport_asn" {
   description = "The Pureport BGP ASN, get from the connection information in Pureport Console"
+}
+
+variable "pureport_vlan_primary" {
+  default = ""
+}
+variable "pureport_vlan_secondary" {
+  default = ""
 }
