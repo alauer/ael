@@ -49,6 +49,7 @@ resource "azurerm_subnet" "GatewaySubnet" {
   resource_group_name  = "${var.azure_resource_group_name}"
   virtual_network_name = "${azurerm_virtual_network.test.name}"
   address_prefix       = "10.100.254.0/26"
+
 }
 
 
@@ -68,6 +69,10 @@ resource "azurerm_network_security_group" "ssh" {
     destination_port_range     = "*"
     source_address_prefixes    = ["${var.office_ip}", "10.10.0.0/16", "10.20.0.0/16"]
     destination_address_prefix = "*"
+  }
+  tags {
+    Terraform = "true"
+    Owner     = "aaron.lauer"
   }
 
 }
@@ -103,6 +108,11 @@ resource "azurerm_public_ip" "test" {
   location              = "${var.azure_location}"
 
   allocation_method = "Dynamic"
+
+  tags {
+    Terraform = "true"
+    Owner     = "aaron.lauer"
+  }
 }
 
 resource "azurerm_virtual_network_gateway" "vnetGateway" {
@@ -120,6 +130,19 @@ resource "azurerm_virtual_network_gateway" "vnetGateway" {
     private_ip_address_allocation = "Dynamic"
     subnet_id                     = "${azurerm_subnet.GatewaySubnet.id}"
   }
+  tags {
+    Terraform = "true"
+    Owner     = "aaron.lauer"
+  }
+}
 
-
+resource "azurerm_express_route_circuit_peering" "test" {
+  peering_type                  = "AzurePrivatePeering"
+  express_route_circuit_name    = "${azurerm_express_route_circuit.ael-demo-exprt.name}"
+  resource_group_name   = "${var.azure_resource_group_name}"
+  peer_asn                      = 394351
+  primary_peer_address_prefix   = "192.168.100.128/30"
+  secondary_peer_address_prefix = "192.168.100.132/30"
+  vlan_id                       = 100
+  shared_key = "Ez2e4oKElYA0gwO6gPlOS"
 }

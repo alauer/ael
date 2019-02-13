@@ -33,6 +33,37 @@ resource "aws_vpc" "this" {
   }
 }
 
+###################
+# Internet Gateway
+###################
+resource "aws_internet_gateway" "this" {
+  count = "${var.create_vpc ? 1 : 0}"
+
+  vpc_id = "${local.vpc_id}"
+
+  tags {
+    Name = "${var.vpc_name}-igw"
+    Terraform = "true"
+    Owner = "aaron.lauer"
+  }
+}
+
+################
+# Publiс routes
+################
+resource "aws_route" "public_internet_gateway" {
+  count = "${var.create_vpc ? 1 : 0}"
+
+  route_table_id         = "${aws_vpc.this.default_route_table_id}"
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = "${aws_internet_gateway.this.id}"
+
+  timeouts {
+    create = "10m"
+  }
+}
+
+
 resource "aws_vpc_ipv4_cidr_block_association" "this" {
   count = "${var.create_vpc && length(var.secondary_cidr_blocks) > 0 ? length(var.secondary_cidr_blocks) : 0}"
 
@@ -81,11 +112,13 @@ resource "aws_vpn_gateway" "this" {
 #}
 
 resource "aws_dx_gateway_association" "this" {
-  #count = "${var.enable_dx_gateway && var.enable_vpn_gateway ? 1 : 0}"
   count = "${var.create_vpc && var.enable_dx_gateway && var.enable_vpn_gateway ? 1 : 0}"
   dx_gateway_id = "${var.dxg_id}"
   vpn_gateway_id = "${aws_vpn_gateway.this.id}"
-  #vpn_gateway_id = "${var.vpn_gateway_id}"
+  timeouts {
+    create = "20m"
+    delete = "20m"
+  }
 }
 
 

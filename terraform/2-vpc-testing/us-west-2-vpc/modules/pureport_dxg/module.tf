@@ -12,7 +12,7 @@ provider "aws" {
 
 
 resource "aws_dx_gateway" "this" {
-  count = "${var.dxg_name != "" ? 1 : 0}"
+  count = "${var.dxg_name != "" && var.directconnect_primary_id != "" ? 1 : 0}"
   name            = "${var.dxg_name}"
   amazon_side_asn = "${var.amazon_side_asn}"
 
