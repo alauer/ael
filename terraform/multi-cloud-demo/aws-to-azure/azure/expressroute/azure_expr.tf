@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket = "pureport-sol-eng"
-    key    = "ael-tf-state/aws-azure/azure.tfstate"
+    key    = "ael-tf-state/aws-azure/azure/expressroute/expr.tfstate"
     region = "us-east-1"
     role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
   }

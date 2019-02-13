@@ -1,5 +1,7 @@
 variable "region" {}
-variable "role_arn" {}
+variable "role_arn" {
+  default = ""
+}
 variable "vpc_name" {}
 variable "vpc_cidr" {}
 variable "dxg_id" {

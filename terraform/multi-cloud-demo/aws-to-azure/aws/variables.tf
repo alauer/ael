@@ -11,8 +11,12 @@ variable "office_ip" {}
 #  default = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 #}
 
-variable "dx_connection_id_primary" {}
-variable "dx_connection_id_secondary" {}
+variable "dx_connection_id_primary" {
+  default = ""
+}
+variable "dx_connection_id_secondary" {
+  default = ""
+}
 variable "bgp_pureport_asn" {}
 variable "pureport_vlan_primary" {}
 variable "pureport_vlan_secondary" {}

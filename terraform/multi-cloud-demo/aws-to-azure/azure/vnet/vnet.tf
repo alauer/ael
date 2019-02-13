@@ -1,3 +1,13 @@
+terraform {
+  backend "s3" {
+    bucket = "pureport-sol-eng"
+    key    = "ael-tf-state/aws-azure/azure/vnet/vnet.tfstate"
+    region = "us-east-1"
+    role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
+    profile = "devadmin"
+  }
+}
+
 variable "azure_resource_group_name" {
   default = "us-east-sol-eng"
 }
@@ -113,4 +123,15 @@ resource "azurerm_virtual_network_gateway" "vnetGateway" {
     Terraform = "true"
     Owner     = "aaron.lauer"
   }
+}
+
+resource "azurerm_virtual_network_gateway_connection" "vnetGWC" {
+  name                = "ael-vnet-gw1-conn-pureport"
+  resource_group_name   = "${var.azure_resource_group_name}"
+  location              = "${var.azure_location}"
+
+  type                            = "ExpressRoute"
+  virtual_network_gateway_id      = "${azurerm_virtual_network_gateway.vnetGateway.id}"
+
+  express_route_circuit_id        = "/subscriptions/c0d488be-6472-4d1d-ada5-40914167eeb4/resourceGroups/us-east-sol-eng/providers/Microsoft.Network/expressRouteCircuits/ael-expressRoute1"
 }

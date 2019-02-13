@@ -8,9 +8,9 @@ locals {
 }
 
 provider "aws" {
-  assume_role {
-    role_arn = "${var.role_arn}"
-  }
+  #assume_role {
+  #  role_arn = "${var.role_arn}"
+  #}
   region = "${var.region}"
   version = "~> 1.57"
 }
@@ -103,6 +103,7 @@ resource "aws_vpn_gateway" "this" {
     Terraform = "true"
     Owner = "aaron.lauer"
   }
+
 }
 
 resource "aws_vpn_gateway_route_propagation" "this" {
