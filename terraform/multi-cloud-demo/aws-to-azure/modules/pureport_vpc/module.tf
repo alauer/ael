@@ -64,6 +64,7 @@ resource "aws_route" "public_internet_gateway" {
 }
 
 
+
 resource "aws_vpc_ipv4_cidr_block_association" "this" {
   count = "${var.create_vpc && length(var.secondary_cidr_blocks) > 0 ? length(var.secondary_cidr_blocks) : 0}"
 
@@ -102,6 +103,13 @@ resource "aws_vpn_gateway" "this" {
     Terraform = "true"
     Owner = "aaron.lauer"
   }
+}
+
+resource "aws_vpn_gateway_route_propagation" "this" {
+  count = "${var.create_vpc && var.enable_vpn_gateway ? 1 : 0}"
+
+  vpn_gateway_id = "${aws_vpn_gateway.this.id}"
+  route_table_id = "${aws_vpc.this.default_route_table_id}"
 }
 
 #resource "aws_vpn_gateway_attachment" "this" {

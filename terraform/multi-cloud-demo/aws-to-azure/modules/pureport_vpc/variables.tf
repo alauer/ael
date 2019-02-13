@@ -2,7 +2,9 @@ variable "region" {}
 variable "role_arn" {}
 variable "vpc_name" {}
 variable "vpc_cidr" {}
-variable "dxg_id" {}
+variable "dxg_id" {
+  default = ""
+}
 
 variable "office_ip" {
   default = "136.41.224.23/32"
