@@ -1,5 +1,5 @@
 module "dxg-us-east-1" {
-  source = "modules/pureport_dxg"
+  source = "../modules/pureport_dxg"
   region = "us-east-1"
   role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
   directconnect_primary_id = "dxcon-fh78lw38"
@@ -13,7 +13,7 @@ module "dxg-us-east-1" {
 }
 
 module "vpc-us-east-1" {
-  source = "modules/pureport_vpc"
+  source = "../modules/pureport_vpc"
   region = "us-east-1"
   role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
   vpc_name = "vpc-us-east-1-ael"
@@ -26,7 +26,7 @@ module "vpc-us-east-1" {
 }
 
 module "vpc-eu-west-1" {
-  source = "modules/pureport_vpc"
+  source = "../modules/pureport_vpc"
   region = "eu-west-1"
   role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
   vpc_name = "vpc-eu-west-1-ael"

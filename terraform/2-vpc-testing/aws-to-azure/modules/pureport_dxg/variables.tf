@@ -1,7 +1,8 @@
 variable "region" {}
 variable "role_arn" {}
 variable "dxg_name" {
-  description = "The "
+  description = "The"
+  default = ""
 }
 variable "directconnect_primary_id" {
   description = "ID of Direct Connect Primary Connection"
