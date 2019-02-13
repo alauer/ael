@@ -3,3 +3,4 @@
 .kitchen
 terraform.tfstate
 Gemfile.lock
+.DS_Store

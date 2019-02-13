@@ -1,3 +1,12 @@
+terraform {
+  backend "s3" {
+    bucket = "pureport-sol-eng"
+    key    = "ael-tf-state/aws-azure/azure.tfstate"
+    region = "us-east-1"
+    role_arn = "arn:aws:iam::696238294826:role/DevAdmin"
+  }
+}
+
 variable "azure_resource_group_name" {
   default = "us-east-sol-eng"
 }
