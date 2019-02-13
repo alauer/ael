@@ -41,7 +41,7 @@ module "vpc-eu-west-1" {
   vpc_name = "vpc-eu-west-1-ael"
   vpc_cidr = "10.20.0.0/16"
   number_of_subnets = 1
-  enable_vpn_gateway = false
+  enable_vpn_gateway = true
   enable_dx_gateway = true
   create_vpc = true
   dxg_id = "${module.dxg-us-east-1.dxg_id}"

@@ -124,8 +124,8 @@ resource "aws_dx_gateway_association" "this" {
   dx_gateway_id = "${var.dxg_id}"
   vpn_gateway_id = "${aws_vpn_gateway.this.id}"
   timeouts {
-    create = "20m"
-    delete = "20m"
+    create = "30m"
+    delete = "30m"
   }
 }
 
