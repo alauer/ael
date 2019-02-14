@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "pureport-sol-eng"
+    bucket = "ael-demo-tf-statefiles"
     key    = "ael-tf-state/aws-azure/azure/expressroute/expr.tfstate"
     region = "us-east-1"
   }
@@ -38,7 +38,7 @@ resource "azurerm_express_route_circuit" "ael-demo-exprt" {
   location              = "${var.azure_location}"                                     #This needs to be in a variables file
   service_provider_name = "Equinix"                                                   #This needs to be in a variables file
   peering_location      = "${lookup(var.azure_peering_location, var.azure_location)}" #This needs to be in a variables file
-  bandwidth_in_mbps     = 100                                                         #hardcode this to save money in dev account
+  bandwidth_in_mbps     = 50                                                          #hardcode this to save money in dev account
 
   sku {
     tier   = "Standard"
@@ -59,5 +59,5 @@ resource "azurerm_express_route_circuit_peering" "test" {
   primary_peer_address_prefix   = "192.168.100.128/30"
   secondary_peer_address_prefix = "192.168.100.132/30"
   vlan_id                       = 100
-  shared_key                    = "Ez2e4oKElYA0gwO6gPlOS"
+  shared_key                    = "QaHGLGsPcDc5hnqd88c2d"
 }

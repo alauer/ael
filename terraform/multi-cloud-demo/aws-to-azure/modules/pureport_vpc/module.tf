@@ -1,3 +1,8 @@
+provider "aws" {
+  region  = "${var.region}"
+  version = "~> 1.58"
+}
+
 terraform {
   required_version = ">= 0.10.3" # introduction of Local Values configuration language feature
 }
@@ -5,15 +10,6 @@ terraform {
 locals {
   # Use `local.vpc_id` to give a hint to Terraform that subnets should be deleted before secondary CIDR blocks can be free!
   vpc_id = "${element(concat(aws_vpc_ipv4_cidr_block_association.this.*.vpc_id, aws_vpc.this.*.id, list("")), 0)}"
-}
-
-provider "aws" {
-  #assume_role {
-  #  role_arn = "${var.role_arn}"
-  #}
-  region = "${var.region}"
-
-  version = "~> 1.57"
 }
 
 data "aws_availability_zones" "available" {

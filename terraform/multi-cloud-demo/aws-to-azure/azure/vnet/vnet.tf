@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "pureport-sol-eng"
+    bucket = "ael-demo-tf-statefiles"
     key    = "ael-tf-state/aws-azure/azure/vnet/vnet.tfstate"
     region = "us-east-1"
   }
@@ -59,13 +59,13 @@ resource "azurerm_subnet" "GatewaySubnet" {
 }
 
 resource "azurerm_network_security_group" "ssh" {
-  name                = "ael-ssh"
+  name                = "ael-ssh-nsg1"
   location            = "${var.azure_location}"
   resource_group_name = "${var.azure_resource_group_name}"
 
   security_rule {
-    name                       = "allow_all_ael"
-    priority                   = 100
+    name                       = "allow_office_ael"
+    priority                   = 1010
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "*"
@@ -75,16 +75,28 @@ resource "azurerm_network_security_group" "ssh" {
     destination_address_prefix = "*"
   }
 
+  security_rule {
+    name                       = "allow_all_ssh"
+    priority                   = 1000
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "TCP"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
   tags {
     Terraform = "true"
     Owner     = "aaron.lauer"
   }
 }
 
-resource "azurerm_subnet_network_security_group_association" "ssh" {
-  subnet_id                 = "${azurerm_subnet.test.id}"
-  network_security_group_id = "${azurerm_network_security_group.ssh.id}"
-}
+#resource "azurerm_subnet_network_security_group_association" "ssh" {
+#  subnet_id                 = "${azurerm_subnet.test.id}"
+#  network_security_group_id = "${azurerm_network_security_group.ssh.id}"
+#}
 
 resource "azurerm_public_ip" "test" {
   name                = "ael-publicip1"
