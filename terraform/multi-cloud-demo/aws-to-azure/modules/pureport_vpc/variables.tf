@@ -1,9 +1,12 @@
 variable "region" {}
+
 variable "role_arn" {
   default = ""
 }
+
 variable "vpc_name" {}
 variable "vpc_cidr" {}
+
 variable "dxg_id" {
   default = ""
 }
@@ -35,7 +38,7 @@ variable "number_of_subnets" {
 }
 
 variable "amazon_side_asn" {
-  default ="64512"
+  default = "64512"
 }
 
 variable "secondary_cidr_blocks" {

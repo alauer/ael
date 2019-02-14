@@ -12,6 +12,7 @@ provider "aws" {
   #  role_arn = "${var.role_arn}"
   #}
   region = "${var.region}"
+
   version = "~> 1.57"
 }
 
@@ -20,16 +21,16 @@ data "aws_availability_zones" "available" {
 }
 
 resource "aws_vpc" "this" {
-  count = "${var.create_vpc ? 1 : 0}"
-  cidr_block = "${var.vpc_cidr}"
+  count                            = "${var.create_vpc ? 1 : 0}"
+  cidr_block                       = "${var.vpc_cidr}"
   assign_generated_ipv6_cidr_block = "false"
-  enable_dns_support = "true"
-  enable_dns_hostnames = "true"
+  enable_dns_support               = "true"
+  enable_dns_hostnames             = "true"
 
   tags {
-    Name = "${var.vpc_name}"
+    Name      = "${var.vpc_name}"
     Terraform = "true"
-    Owner = "aaron.lauer"
+    Owner     = "aaron.lauer"
   }
 }
 
@@ -42,9 +43,9 @@ resource "aws_internet_gateway" "this" {
   vpc_id = "${local.vpc_id}"
 
   tags {
-    Name = "${var.vpc_name}-igw"
+    Name      = "${var.vpc_name}-igw"
     Terraform = "true"
-    Owner = "aaron.lauer"
+    Owner     = "aaron.lauer"
   }
 }
 
@@ -62,8 +63,6 @@ resource "aws_route" "public_internet_gateway" {
     create = "10m"
   }
 }
-
-
 
 resource "aws_vpc_ipv4_cidr_block_association" "this" {
   count = "${var.create_vpc && length(var.secondary_cidr_blocks) > 0 ? length(var.secondary_cidr_blocks) : 0}"
@@ -83,8 +82,8 @@ resource "aws_vpc_ipv4_cidr_block_association" "this" {
 #  vpc_id = "${local.vpc_id}"
 #
 #  lifecycle {
-    # When attaching VPN gateways it is common to define aws_vpn_gateway_route_propagation
-    # resources that manipulate the attributes of the routing table (typically for the private subnets)
+# When attaching VPN gateways it is common to define aws_vpn_gateway_route_propagation
+# resources that manipulate the attributes of the routing table (typically for the private subnets)
 #    ignore_changes = ["propagating_vgws"]
 #  }
 #}
@@ -99,11 +98,10 @@ resource "aws_vpn_gateway" "this" {
   amazon_side_asn = "${var.amazon_side_asn}"
 
   tags {
-    Name = "vgw-${var.vpc_name}"
+    Name      = "vgw-${var.vpc_name}"
     Terraform = "true"
-    Owner = "aaron.lauer"
+    Owner     = "aaron.lauer"
   }
-
 }
 
 resource "aws_vpn_gateway_route_propagation" "this" {
@@ -121,15 +119,15 @@ resource "aws_vpn_gateway_route_propagation" "this" {
 #}
 
 resource "aws_dx_gateway_association" "this" {
-  count = "${var.create_vpc && var.enable_dx_gateway && var.enable_vpn_gateway ? 1 : 0}"
-  dx_gateway_id = "${var.dxg_id}"
+  count          = "${var.create_vpc && var.enable_dx_gateway && var.enable_vpn_gateway ? 1 : 0}"
+  dx_gateway_id  = "${var.dxg_id}"
   vpn_gateway_id = "${aws_vpn_gateway.this.id}"
+
   timeouts {
     create = "30m"
     delete = "30m"
   }
 }
-
 
 resource "aws_subnet" "public" {
   count                           = "${var.create_vpc > 0 ? var.number_of_subnets : 0}"
@@ -140,33 +138,33 @@ resource "aws_subnet" "public" {
   availability_zone               = "${element(data.aws_availability_zones.available.names, count.index)}"
 
   tags {
-    Name = "pureport-${element(data.aws_availability_zones.available.names, count.index)}-public"
+    Name      = "pureport-${element(data.aws_availability_zones.available.names, count.index)}-public"
     Terraform = "true"
-    Owner = "aaron.lauer"
+    Owner     = "aaron.lauer"
   }
 }
 
 resource "aws_security_group" "allow_all" {
-  count = "${var.create_vpc}"
+  count  = "${var.create_vpc}"
   vpc_id = "${aws_vpc.this.id}"
 
   ingress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["${var.office_ip}"]
   }
 
   egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags {
-    Name = "allow-all"
-    Terraform = "true"
-    Owner = "aaron.lauer"
-  }
 
+  tags {
+    Name      = "allow-all"
+    Terraform = "true"
+    Owner     = "aaron.lauer"
+  }
 }
