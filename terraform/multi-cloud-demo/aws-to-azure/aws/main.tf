@@ -6,20 +6,18 @@ terraform {
   }
 }
 
-/*
 module "dxg-us-east-1" {
   source                     = "../modules/pureport_dxg"
   region                     = "us-east-1"
-  directconnect_primary_id   = "dxcon-ffvn4f14"
-  directconnect_secondary_id = "dxcon-ffkuissd"
+  directconnect_primary_id   = "dxcon-fg2f5y2r"
+  directconnect_secondary_id = "dxcon-fgmige0t"
   dxg_name                   = "ael-dxg-us-east-1"
-  bgp_auth_key_primary       = "Ew3eMBD4a7zXtQKmbSoxS"
-  bgp_auth_key_secondary     = "VVPE4KBsUBvZ4oWF4Z0Cw"
+  bgp_auth_key_primary       = "fLYZETy2B6BmCmMrhdtvq"
+  bgp_auth_key_secondary     = "ZdvYHrWCyXj2lJ4LkXkfD"
   bgp_pureport_asn           = "394351"
   pureport_vlan_primary      = "100"
   pureport_vlan_secondary    = "150"
 }
-*/
 
 module "vpc1-us-east-2" {
   source             = "../modules/pureport_vpc"
@@ -31,7 +29,7 @@ module "vpc1-us-east-2" {
   enable_dx_gateway  = false
   create_vpc         = true
 
-  #dxg_id             = "${module.dxg-us-east-1.dxg_id}"
+  #dxg_id             = "${module.dxg-us-east-1.dxg_id}" #We don't need this for testing VPN
 }
 
 module "vpc1-us-east-1" {
@@ -44,7 +42,7 @@ module "vpc1-us-east-1" {
   enable_dx_gateway  = false
   create_vpc         = true
 
-  #dxg_id             = "${module.dxg-us-east-1.dxg_id}"
+  dxg_id = "${module.dxg-us-east-1.dxg_id}"
 }
 
 module "vpc-eu-west-1" {
@@ -57,5 +55,5 @@ module "vpc-eu-west-1" {
   enable_dx_gateway  = false
   create_vpc         = true
 
-  #dxg_id             = "${module.dxg-us-east-1.dxg_id}"
+  dxg_id = "${module.dxg-us-east-1.dxg_id}"
 }
