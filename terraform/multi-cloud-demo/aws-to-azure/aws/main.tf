@@ -7,7 +7,7 @@ terraform {
 }
 
 module "dxg-us-east-1" {
-  source                     = "../modules/pureport_dxg"
+  source                     = "github.com/pureport/solutions-engineering/terraform/modules/pureport_dxg"
   region                     = "us-east-1"
   directconnect_primary_id   = "dxcon-fg2f5y2r"
   directconnect_secondary_id = "dxcon-fgmige0t"
@@ -20,7 +20,7 @@ module "dxg-us-east-1" {
 }
 
 module "vpc1-us-east-1" {
-  source             = "../modules/pureport_vpc"
+  source             = "github.com/pureport/solutions-engineering/terraform/modules/pureport_vpc"
   region             = "us-east-1"
   vpc_name           = "vpc-us-east-1-ael"
   vpc_cidr           = "10.20.0.0/16"
@@ -33,7 +33,7 @@ module "vpc1-us-east-1" {
 }
 
 module "vpc-eu-west-1" {
-  source             = "../modules/pureport_vpc"
+  source             = "github.com/pureport/solutions-engineering/terraform/modules/pureport_vpc"
   region             = "eu-west-1"
   vpc_name           = "vpc-eu-west-1-ael"
   vpc_cidr           = "10.30.0.0/16"
