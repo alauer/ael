@@ -1,23 +1,16 @@
-terraform {
-  backend "s3" {
-    bucket = "ael-demo-tf-statefiles"
-    key    = "ael-tf-state/aws-azure/azure/compute/compute.tfstate"
-    region = "us-east-1"
-  }
-}
-
 variable "azure_resource_group_name" {
   default = "us-east-sol-eng"
 }
 
 variable "azure_location" {
-  default = "eastus2"
+  default = "westus"
 }
 
 variable "azure_peering_location" {
   type = "map"
 
   default = {
+    "westus"  = "Silicon Valley"
     "westus2" = "Seattle"
     "eastus"  = "Washington DC"
     "eastus2" = "Washington DC"
@@ -25,9 +18,13 @@ variable "azure_peering_location" {
 }
 
 variable "office_ip" {
-  default = "136.41.224.23/32"
+  default = "71.70.232.202/32"
 }
 
-provider "azurerm" {
-  version = "~> 1.21"
+variable "prefix" {
+  default = "sales-demo"
+}
+
+data "azurerm_resource_group" "sol-eng" {
+  name = "us-east-sol-eng"
 }

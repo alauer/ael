@@ -11,13 +11,14 @@ variable "azure_resource_group_name" {
 }
 
 variable "azure_location" {
-  default = "eastus2"
+  default = "westus"
 }
 
 variable "azure_peering_location" {
   type = "map"
 
   default = {
+    "westus"  = "Silicon Valley"
     "westus2" = "Seattle"
     "eastus"  = "Washington DC"
     "eastus2" = "Washington DC"
@@ -47,17 +48,18 @@ resource "azurerm_express_route_circuit" "ael-demo-exprt" {
 
   tags {
     Terraform = "true"
-    Owner     = "aaron.lauer"
+    Owner     = "Solutions Engineering"
   }
 }
 
-resource "azurerm_express_route_circuit_peering" "test" {
-  peering_type                  = "AzurePrivatePeering"
-  express_route_circuit_name    = "${azurerm_express_route_circuit.ael-demo-exprt.name}"
-  resource_group_name           = "${var.azure_resource_group_name}"
-  peer_asn                      = 394351
-  primary_peer_address_prefix   = "192.168.100.128/30"
-  secondary_peer_address_prefix = "192.168.100.132/30"
-  vlan_id                       = 100
-  shared_key                    = "QaHGLGsPcDc5hnqd88c2d"
-}
+#resource "azurerm_express_route_circuit_peering" "test" {
+#  peering_type                  = "AzurePrivatePeering"
+#  express_route_circuit_name    = "${azurerm_express_route_circuit.ael-demo-exprt.name}"
+#  resource_group_name           = "${var.azure_resource_group_name}"
+#  peer_asn                      = 394351
+#  primary_peer_address_prefix   = "192.168.100.128/30"
+#  secondary_peer_address_prefix = "192.168.100.132/30"
+#  vlan_id                       = 100
+#  shared_key                    = "QaHGLGsPcDc5hnqd88c2d"
+#}
+
