@@ -18,7 +18,7 @@ variable "azure_peering_location" {
 }
 
 variable "office_ip" {
-  default = "71.70.232.202/32"
+  default = "136.41.224.23/32"
 }
 
 variable "prefix" {

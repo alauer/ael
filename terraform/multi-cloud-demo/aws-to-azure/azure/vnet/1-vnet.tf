@@ -58,9 +58,8 @@ resource "azurerm_network_interface" "sales-demo" {
   }
 }
 
-/*
 resource "azurerm_virtual_network_gateway_connection" "sales-demo" {
-name                = "sales-demo-vnet-gw1-conn-pureport"
+  name                = "sales-demo-vnet-gw1-conn-pureport"
   resource_group_name = "${var.azure_resource_group_name}"
   location            = "${var.azure_location}"
 
@@ -69,9 +68,7 @@ name                = "sales-demo-vnet-gw1-conn-pureport"
 
   express_route_circuit_id = "/subscriptions/c0d488be-6472-4d1d-ada5-40914167eeb4/resourceGroups/us-east-sol-eng/providers/Microsoft.Network/expressRouteCircuits/ael-expressRoute1"
 }
-*/
 
-/*
 resource "azurerm_virtual_network_gateway" "sales-demo" {
   name                = "sales-demo-vnet-gw1"
   resource_group_name = "${var.azure_resource_group_name}"
@@ -100,21 +97,23 @@ resource "azurerm_subnet" "sales-demogw" {
   virtual_network_name = "${azurerm_virtual_network.sales-demo.name}"
   address_prefix       = "172.16.33.224/27"
 }
-*/
+
 resource "azurerm_network_security_group" "allow_all" {
   name                = "sales-demo-ssh-nsg1"
   location            = "${var.azure_location}"
   resource_group_name = "${var.azure_resource_group_name}"
 
   security_rule {
-    name                       = "sales-demo_allow_clouds"
-    priority                   = 1010
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefixes    = ["${var.office_ip}"]
+    name                    = "sales-demo_allow_clouds"
+    priority                = 1010
+    direction               = "Inbound"
+    access                  = "Allow"
+    protocol                = "*"
+    source_port_range       = "*"
+    destination_port_range  = "*"
+    source_address_prefixes = ["${var.office_ip}"]
+
+    #source_address_prefixes    = ["${var.office_ip}", "10.20.0.0/24", "10.30.0.0/24", "192.168.168.0/24"]
     destination_address_prefix = "*"
   }
 
