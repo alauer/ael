@@ -1,9 +1,9 @@
-output "ael-demo-exprt-Service-Key" {
+output "ael-KB-exprt-Service-Key" {
   description = "Expressroute Service Key"
-  value       = ["${azurerm_express_route_circuit.ael-demo-exprt.service_key}"]
+  value       = ["${azurerm_express_route_circuit.ael-KB-exprt.service_key}"]
 }
 
-output "ael-demo-exprt-Circuit-id" {
+output "ael-KB-exprt-Circuit-id" {
   description = "Expressroute Service Key"
-  value       = ["${azurerm_express_route_circuit.ael-demo-exprt.id}"]
+  value       = ["${azurerm_express_route_circuit.ael-KB-exprt.id}"]
 }

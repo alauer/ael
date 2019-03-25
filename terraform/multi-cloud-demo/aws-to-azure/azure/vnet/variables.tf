@@ -18,13 +18,17 @@ variable "azure_peering_location" {
 }
 
 variable "office_ip" {
-  default = "136.41.224.23/32"
+  default = "136.56.141.127/32"
 }
 
 variable "prefix" {
-  default = "sales-demo"
+  default = "ael-kb"
 }
 
 data "azurerm_resource_group" "sol-eng" {
   name = "us-east-sol-eng"
+}
+
+variable "create_vm" {
+  default = "false"
 }
