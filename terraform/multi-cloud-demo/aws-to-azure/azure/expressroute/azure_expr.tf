@@ -30,7 +30,7 @@ variable "office_ip" {
 }
 
 variable "create_expr_peering" {
-  default = "true"
+  default = "false"
 }
 
 provider "azurerm" {
