@@ -14,7 +14,7 @@ module "vpc1-us-east-1" {
   enable_vpn_gateway     = true
   enable_dx_gateway      = true
   create_vpc             = true
-  security_group_subnets = ["136.56.141.127/32", "172.16.33.0/24", "10.30.0.0/16", "10.33.133.0/24"]
+  security_group_subnets = ["136.56.141.127/32", "136.56.44.125/32", "136.41.224.23/32", "172.16.33.0/24", "10.30.0.0/16", "10.33.133.0/24"]
 
   private_subnets = ["10.20.1.0/24"]
   public_subnets  = ["10.20.101.0/24"]
@@ -34,7 +34,7 @@ module "vpc-eu-west-1" {
   enable_vpn_gateway     = true
   enable_dx_gateway      = true
   create_vpc             = true
-  security_group_subnets = ["172.16.33.0/24", "10.20.0.0/16", "10.33.133.0/24"]
+  security_group_subnets = ["136.56.141.127/32", "136.41.224.23/32", "136.56.44.125/32", "172.16.33.0/24", "10.20.0.0/16", "10.33.133.0/24"]
 
   private_subnets = ["10.30.1.0/24"]
   public_subnets  = ["10.30.101.0/24"]

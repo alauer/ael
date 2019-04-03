@@ -113,7 +113,8 @@ resource "azurerm_network_security_group" "allow_all" {
     destination_port_range  = "*"
     source_address_prefixes = ["${var.office_ip}"]
 
-    source_address_prefixes    = ["${var.office_ip}", "10.20.0.0/16", "10.30.0.0/16"]
+    //source_address_prefixes    = ["${var.office_ip}", "10.20.0.0/16", "10.30.0.0/16"]
+    source_address_prefixes    = ["${var.security_group_subnets}"]
     destination_address_prefix = "*"
   }
 
