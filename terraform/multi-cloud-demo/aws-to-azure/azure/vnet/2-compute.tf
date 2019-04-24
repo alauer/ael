@@ -1,18 +1,3 @@
-/*resource "azurerm_storage_account" "main" {
-  name                     = "salesdemostor"
-  resource_group_name      = "${data.azurerm_resource_group.sol-eng.name}"
-  location                 = "${var.azure_location}"
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-}
-
-resource "azurerm_storage_container" "disks" {
-  name                  = "vhds"
-  resource_group_name   = "${data.azurerm_resource_group.sol-eng.name}"
-  storage_account_name  = "${azurerm_storage_account.main.name}"
-  container_access_type = "private"
-}*/
-
 resource "azurerm_virtual_machine" "main" {
   count = "${var.create_vm ? 1 : 0}"
   name  = "${var.prefix}-vm"
