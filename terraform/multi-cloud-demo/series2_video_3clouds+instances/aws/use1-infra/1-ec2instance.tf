@@ -29,7 +29,7 @@ module "us-east-1-ec2" {
     aws = "aws.use1"
   }
 
-  version = "1.12.0"
+  version = "1.21.0"
 
   name = "wordpress"
 
@@ -38,7 +38,7 @@ module "us-east-1-ec2" {
   key_name               = "ael-laptop"
   monitoring             = true
   vpc_security_group_ids = ["${data.terraform_remote_state.vpc.security_groups}"]
-  subnet_id              = "${data.terraform_remote_state.vpc.aws_private_subnet}"
+  subnet_id              = "${data.terraform_remote_state.vpc.aws_public_subnet}"
 
   tags = {
     Terraform   = "true"
