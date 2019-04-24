@@ -33,12 +33,13 @@ module "us-east-1-ec2" {
 
   name = "wordpress"
 
-  ami                    = "ami-0ac019f4fcb7cb7e6"
-  instance_type          = "t2.micro"
-  key_name               = "ael-laptop"
-  monitoring             = true
-  vpc_security_group_ids = ["${data.terraform_remote_state.vpc.security_groups}"]
-  subnet_id              = "${data.terraform_remote_state.vpc.aws_public_subnet}"
+  ami                         = "ami-0ac019f4fcb7cb7e6"
+  instance_type               = "t2.micro"
+  key_name                    = "ael-laptop"
+  monitoring                  = false
+  associate_public_ip_address = true
+  vpc_security_group_ids      = ["${data.terraform_remote_state.vpc.security_groups}"]
+  subnet_id                   = "${data.terraform_remote_state.vpc.aws_public_subnet}"
 
   tags = {
     Terraform   = "true"
