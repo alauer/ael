@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket = "ael-demo-tf-statefiles"
-    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-vpc.tfstate"
+    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-dx.tfstate"
     region = "us-east-1"
   }
 }
@@ -14,32 +14,6 @@ provider "aws" {
 provider "aws" {
   region = "eu-west-1"
   alias  = "euw1"
-}
-
-module "vpc1-us-east-1" {
-  source = "/Users/alauer/Documents/GitHub/solutions-engineering/terraform/modules/pureport_vpc"
-
-  providers = {
-    aws = "aws.use1"
-  }
-
-  region                 = "us-east-1"
-  vpc_name               = "ael-vpc-us-east-1"
-  vpc_cidr               = "10.20.0.0/16"
-  enable_vpn_gateway     = false
-  enable_dx_gateway      = false
-  create_vpc             = true
-  security_group_subnets = ["10.33.133.0/24"]
-
-  private_subnets = ["10.20.1.0/24"]
-  public_subnets  = ["10.20.101.0/24"]
-
-  dxg_id = "${module.dxg-us-east-1.dxg_id}"
-
-  tags {
-    Owner       = "aaron.lauer"
-    Environment = "dev"
-  }
 }
 
 module "dxg-us-east-1" {
