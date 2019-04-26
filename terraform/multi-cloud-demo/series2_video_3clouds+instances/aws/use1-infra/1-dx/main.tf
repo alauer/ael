@@ -16,7 +16,7 @@ provider "aws" {
   alias  = "euw1"
 }
 
-module "dxg-us-east-1" {
+module "dxg" {
   source = "/Users/alauer/Documents/GitHub/solutions-engineering/terraform/modules/pureport_dxg"
 
   providers = {
