@@ -31,21 +31,19 @@ module "vpc" {
   propagate_private_route_tables_vgw = true
   create_database_subnet_route_table = true
 
-  private_subnets = [
-    "10.20.1.0/24",
-    "10.20.2.0/24",
-  ]
+  //private_subnets = [
+  //  "10.20.1.0/24",
+  //  "10.20.2.0/24",
+  //]
 
   public_subnets = [
     "10.20.101.0/24",
     "10.20.102.0/24",
   ]
-
   database_subnets = [
     "10.20.201.0/24",
     "10.20.202.0/24",
   ]
-
   tags = {
     Terraform   = "true"
     Environment = "dev"
