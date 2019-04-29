@@ -60,7 +60,7 @@ module "db" {
 
   tags = {
     Terraform   = "true"
-    Environment = "dev"
+    Environment = "3-application"
     Owner       = "aaron.lauer"
   }
 }
