@@ -6,3 +6,7 @@ variable "azs" {
     "us-east-1b",
   ]
 }
+
+variable "vpc_id" {
+  default = "vpc-0e6fac0fe39c0db00"
+}

@@ -8,12 +8,11 @@ terraform {
 
 provider "aws" {
   region = "us-east-1"
-  alias  = "use1"
 }
 
-provider "aws" {
-  region = "eu-west-1"
-  alias  = "euw1"
+locals {
+  pureport_network = ["10.20.0.0/16", "10.33.133.0/24"]
+  database_subnets = ["subnet-036f56299f9d755d6", "subnet-0c5ab4c8ea2afda48"]
 }
 
 /*module "ec2" {
@@ -42,24 +41,15 @@ providers = {
     Owner       = "aaron.lauer"
   }
 }
-
-resource "aws_security_group" "app_servers" {
-  name        = "app-servers"
-  description = "For application servers"
-  vpc_id      = "${module.vpc.vpc_id}"
-}
 */
 
-
-/*module "db" {
-providers = {
-  aws = "aws.use1"
-}
+module "db" {
+  source                          = "terraform-aws-modules/rds-aurora/aws"
   name                            = "aurora-wordpress-demo"
   engine                          = "aurora-mysql"
   engine_version                  = "5.7.12"
-  subnets                         = ["${module.vpc.database_subnets}"]
-  vpc_id                          = "${module.vpc.vpc_id}"
+  subnets                         = "${local.database_subnets}"
+  vpc_id                          = "${var.vpc_id}"
   replica_count                   = 1
   instance_type                   = "db.t3.medium"
   apply_immediately               = true
@@ -87,22 +77,27 @@ resource "aws_rds_cluster_parameter_group" "aurora_57_cluster_parameter_group" {
   description = "wordpress-aurora-57-cluster-parameter-group"
 }
 
-resource "aws_security_group_rule" "allow_access_aws" {
-  type                     = "ingress"
-  from_port                = "${module.aurora.this_rds_cluster_port}"
-  to_port                  = "${module.aurora.this_rds_cluster_port}"
-  protocol                 = "tcp"
-  source_security_group_id = "${aws_security_group.app_servers.id}"
-  security_group_id        = "${module.aurora.this_security_group_id}"
+resource "aws_security_group" "app_servers" {
+  name        = "app-servers"
+  description = "For application servers"
+  vpc_id      = "${var.vpc_id}"
 }
 
-resource "aws_security_group_rule" "allow_access_all" {
+resource "aws_security_group_rule" "allow_access_aws" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  cidr_blocks       = "${local.pureport_network}"
+  security_group_id = "${aws_security_group.app_servers.id}"
+}
+
+/*resource "aws_security_group_rule" "allow_access_all" {
   type              = "ingress"
   from_port         = "${module.aurora.this_rds_cluster_port}"
   to_port           = "${module.aurora.this_rds_cluster_port}"
   protocol          = "tcp"
-  cidr_blocks       = ["10.33.133.0/24"]
+  cidr_blocks       = "${local.pureport_network}"
   security_group_id = "${module.aurora.this_security_group_id}"
-}
-*/
+}*/
 

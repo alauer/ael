@@ -29,6 +29,7 @@ module "vpc" {
   create_database_subnet_group       = true
   enable_vpn_gateway                 = true
   propagate_private_route_tables_vgw = true
+  create_database_subnet_route_table = true
 
   private_subnets = [
     "10.20.1.0/24",
