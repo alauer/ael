@@ -12,7 +12,34 @@ provider "aws" {
 
 locals {
   pureport_network = ["10.20.0.0/16", "10.33.133.0/24"]
-  database_subnets = ["subnet-036f56299f9d755d6", "subnet-0c5ab4c8ea2afda48"]
+
+  database_subnets = ["subnet-0d460b61d2d014c6e", "subnet-06db2ac6f2931633d"]
+  public_subnets   = ["subnet-0fe7f5dc3b7c1f7f9", "subnet-0c10b928946a0757a"]
+}
+
+resource "aws_route53_resolver_endpoint" "pureport" {
+  name      = "pureport"
+  direction = "INBOUND"
+
+  security_group_ids = [
+    "${aws_security_group.app_servers.id}",
+  ]
+
+  ip_address {
+    subnet_id = "${local.public_subnets[0]}"
+    ip        = "10.20.101.5"
+  }
+
+  ip_address {
+    subnet_id = "${local.public_subnets[1]}"
+    ip        = "10.20.102.5"
+  }
+
+  tags = {
+    Terraform   = "true"
+    Environment = "3-application"
+    Owner       = "aaron.lauer"
+  }
 }
 
 /*module "ec2" {
@@ -57,6 +84,7 @@ module "db" {
   db_parameter_group_name         = "${aws_db_parameter_group.aurora_db_57_parameter_group.id}"
   db_cluster_parameter_group_name = "${aws_rds_cluster_parameter_group.aurora_57_cluster_parameter_group.id}"
   enabled_cloudwatch_logs_exports = ["audit", "error", "general", "slowquery"]
+  password                        = "${var.db_password}"
 
   tags = {
     Terraform   = "true"

@@ -8,5 +8,9 @@ variable "azs" {
 }
 
 variable "vpc_id" {
-  default = "vpc-0e6fac0fe39c0db00"
+  default = "vpc-02380157a9220e983"
+}
+
+variable "db_password" {
+  default = "etad3nzm>DK$G8gA"
 }
