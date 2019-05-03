@@ -6,15 +6,22 @@ terraform {
   }
 }
 
+data "terraform_remote_state" "vpc" {
+  backend = "s3"
+
+  config {
+    bucket = "ael-demo-tf-statefiles"
+    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-vpc.tfstate"
+    region = "us-east-1"
+  }
+}
+
 provider "aws" {
   region = "us-east-1"
 }
 
 locals {
   pureport_network = ["10.20.0.0/16", "10.33.133.0/24"]
-
-  database_subnets = ["subnet-0d460b61d2d014c6e", "subnet-06db2ac6f2931633d"]
-  public_subnets   = ["subnet-0fe7f5dc3b7c1f7f9", "subnet-0c10b928946a0757a"]
 }
 
 resource "aws_route53_resolver_endpoint" "pureport" {
@@ -26,12 +33,12 @@ resource "aws_route53_resolver_endpoint" "pureport" {
   ]
 
   ip_address {
-    subnet_id = "${local.public_subnets[0]}"
+    subnet_id = "${data.terraform_remote_state.vpc.public_subnets[0]}"
     ip        = "10.20.101.5"
   }
 
   ip_address {
-    subnet_id = "${local.public_subnets[1]}"
+    subnet_id = "${data.terraform_remote_state.vpc.public_subnets[1]}"
     ip        = "10.20.102.5"
   }
 
@@ -75,7 +82,7 @@ module "db" {
   name                            = "aurora-wordpress-demo"
   engine                          = "aurora-mysql"
   engine_version                  = "5.7.12"
-  subnets                         = "${local.database_subnets}"
+  subnets                         = "${data.terraform_remote_state.vpc.database_subnets}"
   vpc_id                          = "${var.vpc_id}"
   replica_count                   = 1
   instance_type                   = "db.t3.medium"
@@ -108,7 +115,7 @@ resource "aws_rds_cluster_parameter_group" "aurora_57_cluster_parameter_group" {
 resource "aws_security_group" "app_servers" {
   name        = "app-servers"
   description = "For application servers"
-  vpc_id      = "${var.vpc_id}"
+  vpc_id      = "${data.terraform_remote_state.vpc.vpc_id}"
 }
 
 resource "aws_security_group_rule" "allow_access_aws" {

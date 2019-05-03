@@ -6,6 +6,16 @@ terraform {
   }
 }
 
+data "terraform_remote_state" "dx" {
+  backend = "s3"
+
+  config {
+    bucket = "ael-demo-tf-statefiles"
+    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-dx.tfstate"
+    region = "us-east-1"
+  }
+}
+
 provider "aws" {
   region = "us-east-1"
   alias  = "use1"
@@ -49,7 +59,7 @@ module "vpc" {
 
 resource "aws_dx_gateway_association" "dxg_assoc" {
   provider       = "aws.use1"
-  dx_gateway_id  = "${var.dxg_id}"
+  dx_gateway_id  = "${data.terraform_remote_state.dx.dxg_resource_id}"
   vpn_gateway_id = "${module.vpc.vgw_id}"
 
   timeouts {
