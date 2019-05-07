@@ -21,7 +21,7 @@ provider "aws" {
 }
 
 locals {
-  pureport_network = ["10.20.0.0/16", "10.33.133.0/24"]
+  pureport_network = ["10.20.0.0/16", "10.33.133.0/24", "10.10.10.0/24"]
 }
 
 resource "aws_route53_resolver_endpoint" "pureport" {
