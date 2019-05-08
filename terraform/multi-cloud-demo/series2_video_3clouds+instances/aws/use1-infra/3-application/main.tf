@@ -62,7 +62,7 @@ module "ec2" {
 
   name = "wordpress"
 
-  ami                         = "ami-0a313d6098716f372"
+  ami                         = "ami-06a6fe050d0638e6b"
   instance_type               = "t2.micro"
   key_name                    = "ael-laptop"
   monitoring                  = false
