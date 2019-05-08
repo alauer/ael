@@ -21,6 +21,24 @@ provider "aws" {
   alias  = "use1"
 }
 
+data "template_file" "test" {
+  template = <<EOF
+#cloud-config
+repo_update: true
+repo_upgrade: all
+
+runcmd:
+  - [ systemctl, daemon-reload ]
+  - [ systemctl, enable, docker.service ]
+  - [ systemctl, start, --no-block, docker.service ]
+  - usermod -a -G docker ubuntu
+  - [sh -c, 'docker pull wordpress']
+
+output:
+  all: '| tee -a /var/log/cloud-init-output.log'
+EOF
+}
+
 locals {
   pureport_network = ["10.20.0.0/16", "10.33.133.0/24", "10.10.10.0/24"]
 }
@@ -69,6 +87,7 @@ module "ec2" {
   associate_public_ip_address = true
   vpc_security_group_ids      = ["${aws_security_group.app_servers.id}", "${data.terraform_remote_state.vpc.default_security_group_id}"]
   subnet_id                   = "${data.terraform_remote_state.vpc.public_subnets[0]}"
+  user_data                   = "${data.template_file.test.rendered}"
 
   tags = {
     Terraform   = "true"
@@ -87,7 +106,7 @@ module "db" {
   engine                          = "aurora-mysql"
   engine_version                  = "5.7.12"
   subnets                         = "${data.terraform_remote_state.vpc.database_subnets}"
-  vpc_id                          = "${var.vpc_id}"
+  vpc_id                          = "${data.terraform_remote_state.vpc.vpc_id}"
   replica_count                   = 1
   instance_type                   = "db.t3.medium"
   apply_immediately               = true

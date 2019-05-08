@@ -7,10 +7,10 @@ variable "azs" {
   ]
 }
 
-variable "vpc_id" {
-  default = "vpc-02380157a9220e983"
-}
-
 variable "db_password" {
   default = "etad3nzm>DK$G8gA"
+}
+
+variable "filename" {
+  default = "cloud-config.cfg"
 }
