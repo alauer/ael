@@ -130,6 +130,16 @@ resource "aws_security_group_rule" "allow_access_aws" {
   security_group_id = "${aws_security_group.app_servers.id}"
 }
 
+resource "aws_security_group_rule" "allow_access_aws_ssh" {
+  provider          = "aws.use1"
+  type              = "ingress"
+  to_port           = 22
+  from_port         = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["${local.pureport_network}", "0.0.0.0/0"]
+  security_group_id = "${aws_security_group.app_servers.id}"
+}
+
 /*resource "aws_security_group_rule" "allow_access_all" {
   type              = "ingress"
   from_port         = "${module.aurora.this_rds_cluster_port}"
