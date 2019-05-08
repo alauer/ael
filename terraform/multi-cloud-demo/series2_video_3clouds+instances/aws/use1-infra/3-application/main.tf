@@ -72,13 +72,16 @@ module "ec2" {
 
   tags = {
     Terraform   = "true"
-    Environment = "dev"
+    Environment = "3-application"
     Owner       = "aaron.lauer"
   }
 }
 
-/*
 module "db" {
+  providers = {
+    aws = "aws.use1"
+  }
+
   source                          = "terraform-aws-modules/rds-aurora/aws"
   name                            = "aurora-wordpress-demo"
   engine                          = "aurora-mysql"
@@ -102,17 +105,19 @@ module "db" {
 }
 
 resource "aws_db_parameter_group" "aurora_db_57_parameter_group" {
+  provider    = "aws.use1"
   name        = "ael-demo-aurora-db-57-parameter-group"
   family      = "aurora-mysql5.7"
   description = "wordpress-aurora-db-57-parameter-group"
 }
 
 resource "aws_rds_cluster_parameter_group" "aurora_57_cluster_parameter_group" {
+  provider    = "aws.use1"
   name        = "ael-demo-aurora-57-cluster-parameter-group"
   family      = "aurora-mysql5.7"
   description = "wordpress-aurora-57-cluster-parameter-group"
 }
-*/
+
 resource "aws_security_group" "app_servers" {
   provider    = "aws.use1"
   name        = "app-servers"
@@ -140,12 +145,12 @@ resource "aws_security_group_rule" "allow_access_aws_ssh" {
   security_group_id = "${aws_security_group.app_servers.id}"
 }
 
-/*resource "aws_security_group_rule" "allow_access_all" {
+resource "aws_security_group_rule" "allow_access_db" {
+  provider          = "aws.use1"
   type              = "ingress"
-  from_port         = "${module.aurora.this_rds_cluster_port}"
-  to_port           = "${module.aurora.this_rds_cluster_port}"
+  from_port         = "${module.db.this_rds_cluster_port}"
+  to_port           = "${module.db.this_rds_cluster_port}"
   protocol          = "tcp"
   cidr_blocks       = "${local.pureport_network}"
-  security_group_id = "${module.aurora.this_security_group_id}"
-}*/
-
+  security_group_id = "${module.db.this_security_group_id}"
+}
