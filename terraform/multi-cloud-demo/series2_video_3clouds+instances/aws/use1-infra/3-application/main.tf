@@ -18,6 +18,7 @@ data "terraform_remote_state" "vpc" {
 
 provider "aws" {
   region = "us-east-1"
+  alias  = "use1"
 }
 
 locals {
@@ -25,6 +26,7 @@ locals {
 }
 
 resource "aws_route53_resolver_endpoint" "pureport" {
+  provider  = "aws.use1"
   name      = "pureport"
   direction = "INBOUND"
 
@@ -49,13 +51,12 @@ resource "aws_route53_resolver_endpoint" "pureport" {
   }
 }
 
-/*module "ec2" {
-providers = {
-  aws = "aws.use1"
-}
+module "ec2" {
+  providers = {
+    aws = "aws.use1"
+  }
+
   source = "terraform-aws-modules/ec2-instance/aws"
-
-
 
   version = "1.21.0"
 
@@ -66,8 +67,8 @@ providers = {
   key_name                    = "ael-laptop"
   monitoring                  = false
   associate_public_ip_address = true
-  vpc_security_group_ids      = ["${aws_security_group.app_servers.id}"]
-  subnet_id                   = "${module.vpc.public_subnets}"
+  vpc_security_group_ids      = ["${aws_security_group.app_servers.id}", "${data.terraform_remote_state.vpc.default_security_group_id}"]
+  subnet_id                   = "${data.terraform_remote_state.vpc.public_subnets[0]}"
 
   tags = {
     Terraform   = "true"
@@ -75,8 +76,8 @@ providers = {
     Owner       = "aaron.lauer"
   }
 }
-*/
 
+/*
 module "db" {
   source                          = "terraform-aws-modules/rds-aurora/aws"
   name                            = "aurora-wordpress-demo"
@@ -111,18 +112,20 @@ resource "aws_rds_cluster_parameter_group" "aurora_57_cluster_parameter_group" {
   family      = "aurora-mysql5.7"
   description = "wordpress-aurora-57-cluster-parameter-group"
 }
-
+*/
 resource "aws_security_group" "app_servers" {
+  provider    = "aws.use1"
   name        = "app-servers"
   description = "For application servers"
   vpc_id      = "${data.terraform_remote_state.vpc.vpc_id}"
 }
 
 resource "aws_security_group_rule" "allow_access_aws" {
+  provider          = "aws.use1"
   type              = "ingress"
+  to_port           = 0
   from_port         = 0
-  to_port           = 65535
-  protocol          = "tcp"
+  protocol          = "-1"
   cidr_blocks       = "${local.pureport_network}"
   security_group_id = "${aws_security_group.app_servers.id}"
 }

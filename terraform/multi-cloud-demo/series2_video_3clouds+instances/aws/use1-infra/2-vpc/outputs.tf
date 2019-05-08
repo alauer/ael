@@ -17,3 +17,8 @@ output "vpc_id" {
   description = "The Resource ID of the VPC"
   value       = "${module.vpc.vpc_id}"
 }
+
+output "default_security_group_id" {
+  description = "The ID of the security group created by default on VPC creation"
+  value       = "${module.vpc.default_security_group_id}"
+}
