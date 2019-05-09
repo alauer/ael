@@ -24,19 +24,22 @@ provider "aws" {
 data "template_file" "test" {
   template = <<EOF
 #cloud-config
-repo_update: true
-repo_upgrade: all
+package_update: true
 
 runcmd:
-  - [ systemctl, daemon-reload ]
-  - [ systemctl, enable, docker.service ]
-  - [ systemctl, start, --no-block, docker.service ]
-  - usermod -a -G docker ubuntu
-  - [sh -c, 'docker pull wordpress']
+  - [ sh, -c, 'docker run --name wordpress -p 8080:80 -e WORDPRESS_DB_HOST=${module.db.this_rds_cluster_endpoint}:3306 -e WORDPRESS_DB_PASSWORD=${module.db.this_rds_cluster_master_password} --restart unless-stopped -d wordpress:latest']
+  - [ sh, -c, 'docker run --name myadmin -d -e PMA_HOST=${module.db.this_rds_cluster_endpoint} -e MYSQL_ROOT_PASSWORD=${module.db.this_rds_cluster_master_password} --restart unless-stopped -p 8181:80 phpmyadmin/phpmyadmin']
 
 output:
   all: '| tee -a /var/log/cloud-init-output.log'
 EOF
+
+  vars {
+    wordpress_db_host     = "${module.db.this_rds_cluster_endpoint}"
+    wordpress_db_password = "${module.db.this_rds_cluster_master_password}"
+    pma_host              = "${module.db.this_rds_cluster_endpoint}"
+    mysql_root_password   = "${module.db.this_rds_cluster_master_password}"
+  }
 }
 
 locals {
@@ -80,14 +83,15 @@ module "ec2" {
 
   name = "wordpress"
 
-  ami                         = "ami-06a6fe050d0638e6b"
+  ami                         = "ami-048c024f7357b935e"
   instance_type               = "t2.micro"
   key_name                    = "ael-laptop"
   monitoring                  = false
   associate_public_ip_address = true
   vpc_security_group_ids      = ["${aws_security_group.app_servers.id}", "${data.terraform_remote_state.vpc.default_security_group_id}"]
   subnet_id                   = "${data.terraform_remote_state.vpc.public_subnets[0]}"
-  user_data                   = "${data.template_file.test.rendered}"
+
+  user_data = "${data.template_file.test.rendered}"
 
   tags = {
     Terraform   = "true"

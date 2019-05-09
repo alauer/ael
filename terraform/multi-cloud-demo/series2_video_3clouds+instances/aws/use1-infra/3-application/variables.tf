@@ -8,7 +8,7 @@ variable "azs" {
 }
 
 variable "db_password" {
-  default = "etad3nzm>DK$G8gA"
+  default = "etad3nzmDKG8gA"
 }
 
 variable "filename" {
