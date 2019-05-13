@@ -28,7 +28,6 @@ resource "azurerm_virtual_network" "vnet" {
   location            = "${local.azure_location}"
   resource_group_name = "${local.azure_resource_group_name}"
   address_space       = ["172.16.0.0/16"]
-  dns_servers         = ["10.20.101.5", "10.20.102.5"]
 
   tags = {
     Terraform   = "true"

@@ -1,9 +1,43 @@
 terraform {
   backend "s3" {
     bucket = "ael-demo-tf-statefiles"
+    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-azureapp.tfstate"
+    region = "us-east-1"
+  }
+}
+
+data "terraform_remote_state" "vnet" {
+  backend = "s3"
+
+  config {
+    bucket = "ael-demo-tf-statefiles"
+    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-vnet.tfstate"
+    region = "us-east-1"
+  }
+}
+
+data "terraform_remote_state" "rds" {
+  backend = "s3"
+
+  config {
+    bucket = "ael-demo-tf-statefiles"
     key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-app.tfstate"
     region = "us-east-1"
   }
+}
+
+data "template_file" "test" {
+  template = <<EOF
+#cloud-config
+package_update: true
+
+runcmd:
+  - [ sh, -c, 'docker run --name wordpress -p 8080:80 -e WORDPRESS_DB_HOST=${data.terraform_remote_state.rds.rds_cluster_endpoint}:3306 -e WORDPRESS_DB_PASSWORD=${data.terraform_remote_state.rds.rds_cluster_master_password} --restart unless-stopped -d wordpress:latest']
+  - [ sh, -c, 'docker run --name myadmin -d -e PMA_HOST=${data.terraform_remote_state.rds.rds_cluster_endpoint} -e MYSQL_ROOT_PASSWORD=${data.terraform_remote_state.rds.rds_cluster_master_password} --restart unless-stopped -p 8181:80 phpmyadmin/phpmyadmin']
+
+output:
+  all: '| tee -a /var/log/cloud-init-output.log'
+EOF
 }
 
 locals {
@@ -36,7 +70,7 @@ resource "azurerm_network_interface" "ael-wordpress1" {
 
   ip_configuration {
     name                          = "ael-wordpress-configuration1"
-    subnet_id                     = "${azurerm_subnet.wordpress1.id}"
+    subnet_id                     = "${data.terraform_remote_state.vnet.wordpress_subnet_id}"
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = "${azurerm_public_ip.vm-main.id}"
   }
@@ -57,10 +91,7 @@ resource "azurerm_virtual_machine" "main" {
   delete_data_disks_on_termination = true
 
   storage_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
-    version   = "latest"
+    id = "/subscriptions/c0d488be-6472-4d1d-ada5-40914167eeb4/resourceGroups/us-east-sol-eng/providers/Microsoft.Compute/images/ael-wordpress-vm-image-20190513135704"
   }
 
   storage_os_disk {
@@ -71,9 +102,10 @@ resource "azurerm_virtual_machine" "main" {
   }
 
   os_profile {
-    computer_name  = "sales-demo-vm"
+    computer_name  = "ael-wordpress-demo"
     admin_username = "soleng"
     admin_password = "7%dUZ4iLM)KtwUzV"
+    custom_data    = "${data.template_file.test.rendered}"
   }
 
   os_profile_linux_config {
