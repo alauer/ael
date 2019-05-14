@@ -1,3 +1,10 @@
+/*
+output "" {
+  description = ""
+  value       = "${module.db.}"
+}
+*/
+
 output "vpc_cloud_router1" {
   description = "Primary Cloud Router"
   value       = "${google_compute_router.pureport1.self_link}"

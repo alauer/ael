@@ -1,3 +1,10 @@
+/*
+output "" {
+  description = ""
+  value       = "${module.db.}"
+}
+*/
+
 output "primary_interconnect_key" {
   description = "Primary pairing key"
   value       = "${google_compute_interconnect_attachment.pureport1.pairing_key}"
