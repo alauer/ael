@@ -27,7 +27,7 @@ data "template_file" "test" {
 package_update: true
 
 runcmd:
-  - [ sh, -c, 'docker run --name wordpress -p 8080:80 -e WORDPRESS_DB_HOST=${module.db.this_rds_cluster_endpoint}:3306 -e WORDPRESS_DB_PASSWORD=${module.db.this_rds_cluster_master_password} --restart unless-stopped -d wordpress:latest']
+  - /usr/bin/docker run --name wordpress -p 80:80 -e WORDPRESS_DB_HOST=${module.db.this_rds_cluster_endpoint}:3306 -e WORDPRESS_DB_PASSWORD=${module.db.this_rds_cluster_master_password} -e WORDPRESS_CONFIG_EXTRA="define('WP_SITEURL', 'http://'); define('WP_HOME', 'http://');" --restart unless-stopped -d wordpress:latest
   - [ sh, -c, 'docker run --name myadmin -d -e PMA_HOST=${module.db.this_rds_cluster_endpoint} -e MYSQL_ROOT_PASSWORD=${module.db.this_rds_cluster_master_password} --restart unless-stopped -p 8181:80 phpmyadmin/phpmyadmin']
 
 output:
@@ -105,17 +105,18 @@ module "db" {
     aws = "aws.use1"
   }
 
-  source                          = "terraform-aws-modules/rds-aurora/aws"
-  name                            = "aurora-wordpress-demo"
-  engine                          = "aurora-mysql"
-  engine_version                  = "5.7.12"
-  subnets                         = "${data.terraform_remote_state.vpc.database_subnets}"
-  vpc_id                          = "${data.terraform_remote_state.vpc.vpc_id}"
-  replica_count                   = 1
-  instance_type                   = "db.t3.medium"
-  apply_immediately               = true
-  skip_final_snapshot             = true
-  snapshot_identifier             = "ael-demo-wordpress-workingsite-1"
+  source              = "terraform-aws-modules/rds-aurora/aws"
+  name                = "aurora-wordpress-demo"
+  engine              = "aurora-mysql"
+  engine_version      = "5.7.12"
+  subnets             = "${data.terraform_remote_state.vpc.database_subnets}"
+  vpc_id              = "${data.terraform_remote_state.vpc.vpc_id}"
+  replica_count       = 1
+  instance_type       = "db.t3.medium"
+  apply_immediately   = true
+  skip_final_snapshot = true
+
+  snapshot_identifier             = "ael-wordpress-working"
   db_parameter_group_name         = "${aws_db_parameter_group.aurora_db_57_parameter_group.id}"
   db_cluster_parameter_group_name = "${aws_rds_cluster_parameter_group.aurora_57_cluster_parameter_group.id}"
   enabled_cloudwatch_logs_exports = ["audit", "error", "general", "slowquery"]

@@ -32,8 +32,7 @@ data "template_file" "test" {
 package_update: true
 
 runcmd:
-  - [ sh, -c, 'docker run --name wordpress -p 8080:80 -e WORDPRESS_DB_HOST=${data.terraform_remote_state.rds.rds_cluster_endpoint}:3306 -e WORDPRESS_DB_PASSWORD=${data.terraform_remote_state.rds.rds_cluster_master_password} --restart unless-stopped -d wordpress:latest']
-  - [ sh, -c, 'docker run --name myadmin -d -e PMA_HOST=${data.terraform_remote_state.rds.rds_cluster_endpoint} -e MYSQL_ROOT_PASSWORD=${data.terraform_remote_state.rds.rds_cluster_master_password} --restart unless-stopped -p 8181:80 phpmyadmin/phpmyadmin']
+  - /usr/bin/docker run --name wordpress -p 80:80 -e WORDPRESS_DB_HOST=${data.terraform_remote_state.rds.rds_cluster_endpoint}:3306 -e WORDPRESS_DB_PASSWORD=${data.terraform_remote_state.rds.rds_cluster_master_password} -e WORDPRESS_CONFIG_EXTRA="define('WP_SITEURL', 'http://'); define('WP_HOME', 'http://');" --restart unless-stopped -d wordpress:latest
 
 output:
   all: '| tee -a /var/log/cloud-init-output.log'
@@ -116,5 +115,43 @@ resource "azurerm_virtual_machine" "main" {
     Terraform   = "true"
     Environment = "1-expr"
     Owner       = "aaron.lauer"
+  }
+}
+
+resource "azurerm_network_security_group" "allow_all" {
+  name                = "ael-wordpress-nsg1"
+  location            = "${local.azure_location}"
+  resource_group_name = "${local.azure_resource_group_name}"
+
+  security_rule {
+    name                    = "ael-kb-test_allow_clouds"
+    priority                = 1010
+    direction               = "Inbound"
+    access                  = "Allow"
+    protocol                = "*"
+    source_port_range       = "*"
+    destination_port_range  = "*"
+    source_address_prefixes = ["${local.office_ip}"]
+
+    //source_address_prefixes    = ["${var.office_ip}", "10.20.0.0/16", "10.30.0.0/16"]
+    source_address_prefixes    = ["${local.office_ip}", "${local.pureport_network}"]
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "ael-kb-test_allow_all_ssh"
+    priority                   = 1000
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "TCP"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  tags {
+    Terraform = "true"
+    Owner     = "aaron.lauer"
   }
 }
