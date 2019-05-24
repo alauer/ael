@@ -34,7 +34,7 @@ module "dxg" {
   pureport_vlan_primary      = "141"
   pureport_vlan_secondary    = "190"
 
-  tags {
+  tags = {
     Terraform   = "true"
     Owner       = "aaron.lauer"
     Environment = "1-dx"
