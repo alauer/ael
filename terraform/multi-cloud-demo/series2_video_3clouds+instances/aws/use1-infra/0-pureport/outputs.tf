@@ -8,12 +8,12 @@ output "dx_secondary_id" {
   value       = "${pureport_aws_connection.us-east-1.gateways.1.remote_id}"
 }
 
-output "vlan_primary_gw" {
+output "aws_dx_vlan_primary_gw" {
   description = "VLAN assigned to Primary"
   value       = "${pureport_aws_connection.us-east-1.gateways.0.vlan}"
 }
 
-output "vlan_secondary_gw" {
+output "aws_dx_vlan_secondary_gw" {
   description = "VLAN assigned to Secondary"
   value       = "${pureport_aws_connection.us-east-1.gateways.1.vlan}"
 }
