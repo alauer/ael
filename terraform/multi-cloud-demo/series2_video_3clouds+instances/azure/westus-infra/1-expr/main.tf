@@ -1,5 +1,5 @@
 // EXPR ID: /subscriptions/c0d488be-6472-4d1d-ada5-40914167eeb4/resourceGroups/us-east-sol-eng/providers/Microsoft.Network/expressRouteCircuits/ael-KBexpressRoute1
-
+/*
 terraform {
   backend "s3" {
     bucket = "ael-demo-tf-statefiles"
@@ -18,7 +18,7 @@ locals {
 }
 
 provider "azurerm" {
-  version = "~>1.x"
+  version = "~> 1.x"
 }
 
 resource "azurerm_express_route_circuit_peering" "wordpress-demo" {
@@ -31,3 +31,5 @@ resource "azurerm_express_route_circuit_peering" "wordpress-demo" {
   vlan_id                       = 100
   shared_key                    = "IDt25veH3cDpGJ9uvmCZG"
 }
+*/
+

@@ -21,6 +21,7 @@ provider "google" {
   project     = "pureport-sol-eng-1"
   region      = "us-east4"
   version     = "~> 2.5"
+  alias       = "gce"
 }
 
 locals {
