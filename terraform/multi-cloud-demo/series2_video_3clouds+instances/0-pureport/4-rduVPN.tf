@@ -1,40 +1,5 @@
-terraform {
-  backend "s3" {
-    bucket = "ael-demo-tf-statefiles"
-    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-vpnpureport.tfstate"
-    region = "us-east-1"
-  }
-}
-
-provider "pureport" {
-  api_key    = "73XrDMJd5nKko"
-  api_secret = "gEf2eRV2BVEAsywz8"
-  api_url    = "https://api.pureport.com"
-}
-
-/*
-curl -X POST https://api.pureport.com/login \
-    -H "Content-Type: application/json" \
-    -d '{
-        "key": "73XrDMJd5nKko",
-        "secret": "gEf2eRV2BVEAsywz8"
-    }'
-*/
-
-data "pureport_accounts" "main" {
-  name_regex = "AaronCo"
-}
-
-data "pureport_locations" "iad" {
-  name_regex = "^Wash*"
-}
-
-data "pureport_networks" "main" {
-  account_href = "${data.pureport_accounts.main.accounts.0.href}"
-  name_regex   = "test-network-ael"
-}
-
 resource "pureport_site_vpn_connection" "raleigh-lab" {
+  provider            = "pureport.terraform-testing"
   name                = "ael-vpn-raleigh-lab"
   speed               = "100"
   high_availability   = true
