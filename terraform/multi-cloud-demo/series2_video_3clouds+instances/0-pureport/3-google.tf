@@ -11,7 +11,7 @@ resource "google_compute_interconnect_attachment" "pureport1" {
   name                     = "ael-wordpress-vlan1"
   type                     = "PARTNER"
   edge_availability_domain = "AVAILABILITY_DOMAIN_1"
-  router                   = "${data.terraform_remote_state.vpc.vpc_cloud_router1}"
+  router                   = "${google_compute_router.pureport1.self_link}"
 }
 
 resource "google_compute_interconnect_attachment" "pureport2" {
@@ -19,7 +19,7 @@ resource "google_compute_interconnect_attachment" "pureport2" {
   name                     = "ael-wordpress-vlan2"
   type                     = "PARTNER"
   edge_availability_domain = "AVAILABILITY_DOMAIN_2"
-  router                   = "${data.terraform_remote_state.vpc.vpc_cloud_router2}"
+  router                   = "${google_compute_router.pureport2.self_link}"
 }
 
 module "vpc" {
@@ -37,7 +37,7 @@ module "vpc" {
     {
       subnet_name   = "wordpress1"
       subnet_ip     = "10.10.10.0/24"
-      subnet_region = "${local.region}"
+      subnet_region = "us-east4"
     },
   ]
 
