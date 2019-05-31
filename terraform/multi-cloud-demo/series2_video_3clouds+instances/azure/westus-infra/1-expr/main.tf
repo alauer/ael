@@ -18,7 +18,7 @@ locals {
 }
 
 provider "azurerm" {
-  version = "=1.24.0"
+  version = "~>1.x"
 }
 
 resource "azurerm_express_route_circuit_peering" "wordpress-demo" {

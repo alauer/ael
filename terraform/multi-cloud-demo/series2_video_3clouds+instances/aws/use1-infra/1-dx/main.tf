@@ -17,6 +17,7 @@ provider "aws" {
 }
 
 ###############
+/*
 provider "pureport" {
   api_key    = "73XrDMJd5nKko"
   api_secret = "gEf2eRV2BVEAsywz8"
@@ -60,9 +61,23 @@ resource "pureport_aws_connection" "us-east-1" {
   provisioner "local-exec" {
     command = "aws directconnect confirm-connection --connection-id ${pureport_aws_connection.us-east-1.gateways.1.remote_id}"
   }
-}
 
+  provisioner "local-exec" {
+    command = "terraform import aws_dx_connection.test_connection ${pureport_aws_connection.us-east-1.gateways.0.remote_id}"
+  }
+}
+*/
 ###################3
+
+data "terraform_remote_state" "pureport" {
+  backend = "s3"
+
+  config {
+    bucket = "ael-demo-tf-statefiles"
+    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-pureport.tfstate"
+    region = "us-east-1"
+  }
+}
 
 module "dxg" {
   source = "/Users/alauer/Documents/GitHub/solutions-engineering/terraform/modules/pureport_dxg"
@@ -73,14 +88,14 @@ module "dxg" {
 
   region = "us-east-1"
 
-  directconnect_primary_id   = "${pureport_aws_connection.us-east-1.gateways.0.remote_id}"
-  directconnect_secondary_id = "${pureport_aws_connection.us-east-1.gateways.1.remote_id}"
+  directconnect_primary_id   = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.0.remote_id}"
+  directconnect_secondary_id = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.1.remote_id}"
   dxg_name                   = "ael-dxg-us-east-1-terraform"
-  bgp_auth_key_primary       = "${pureport_aws_connection.us-east-1.gateways.0.bgp_password}"
-  bgp_auth_key_secondary     = "${pureport_aws_connection.us-east-1.gateways.1.bgp_password}"
-  bgp_pureport_asn           = "${pureport_aws_connection.us-east-1.gateways.0.pureport_asn}"
-  pureport_vlan_primary      = "${pureport_aws_connection.us-east-1.gateways.0.vlan}"
-  pureport_vlan_secondary    = "${pureport_aws_connection.us-east-1.gateways.1.vlan}"
+  bgp_auth_key_primary       = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.0.bgp_password}"
+  bgp_auth_key_secondary     = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.1.bgp_password}"
+  bgp_pureport_asn           = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.0.pureport_asn}"
+  pureport_vlan_primary      = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.0.vlan}"
+  pureport_vlan_secondary    = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.1.vlan}"
 
   tags = {
     Terraform   = "true"
