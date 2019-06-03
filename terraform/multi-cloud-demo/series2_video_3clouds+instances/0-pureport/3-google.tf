@@ -69,3 +69,18 @@ resource "google_compute_router" "pureport2" {
     advertise_mode = "DEFAULT"
   }
 }
+
+/*
+resource "pureport_google_cloud_connection" "main" {
+  name  = "ael-use4gce-terraform-lab"
+  speed = "50"
+
+  high_availability = "true"
+  location_href     = "${data.pureport_locations.iad.locations.0.href}"
+  network_href      = "${data.pureport_networks.main.networks.0.href}"
+
+  primary_pairing_key   = "${google_compute_interconnect_attachment.pureport1.pairing_key}"
+  secondary_pairing_key = "${google_compute_interconnect_attachment.pureport2.pairing_key}"
+}
+*/
+
