@@ -1,8 +1,16 @@
 terraform {
-  backend "s3" {
-    bucket = "ael-demo-tf-statefiles"
-    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-pureport.tfstate"
-    region = "us-east-1"
+  //  backend "s3" {
+  //    bucket = "ael-demo-tf-statefiles"
+  //    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-pureport.tfstate"
+  //    region = "us-east-1"
+  //  }
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "SolEng"
+
+    workspaces {
+      name = "multicloud-demo-pureport"
+    }
   }
 }
 

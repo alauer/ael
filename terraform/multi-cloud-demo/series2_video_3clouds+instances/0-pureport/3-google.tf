@@ -12,6 +12,10 @@ resource "google_compute_interconnect_attachment" "pureport1" {
   type                     = "PARTNER"
   edge_availability_domain = "AVAILABILITY_DOMAIN_1"
   router                   = "${google_compute_router.pureport1.self_link}"
+
+  provisioner "local-exec" {
+    command = "gcloud compute interconnects attachments partner update ${google_compute_interconnect_attachment.pureport1.name} --region us-east4 --admin-enabled"
+  }
 }
 
 resource "google_compute_interconnect_attachment" "pureport2" {
@@ -20,6 +24,10 @@ resource "google_compute_interconnect_attachment" "pureport2" {
   type                     = "PARTNER"
   edge_availability_domain = "AVAILABILITY_DOMAIN_2"
   router                   = "${google_compute_router.pureport2.self_link}"
+
+  provisioner "local-exec" {
+    command = "gcloud compute interconnects attachments partner update ${google_compute_interconnect_attachment.pureport2.name} --region us-east4 --admin-enabled"
+  }
 }
 
 module "vpc" {
@@ -70,17 +78,15 @@ resource "google_compute_router" "pureport2" {
   }
 }
 
-/*
 resource "pureport_google_cloud_connection" "main" {
-  name  = "ael-use4gce-terraform-lab"
-  speed = "50"
+  provider = "pureport.terraform-testing"
+  name     = "ael-use4gce-terraform-lab"
+  speed    = "50"
 
-  high_availability = "true"
+  high_availability = true
   location_href     = "${data.pureport_locations.iad.locations.0.href}"
   network_href      = "${data.pureport_networks.main.networks.0.href}"
 
   primary_pairing_key   = "${google_compute_interconnect_attachment.pureport1.pairing_key}"
   secondary_pairing_key = "${google_compute_interconnect_attachment.pureport2.pairing_key}"
 }
-*/
-
