@@ -1,28 +1,37 @@
 terraform {
-  backend "s3" {
-    bucket = "ael-demo-tf-statefiles"
-    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-azureapp.tfstate"
-    region = "us-east-1"
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "SolEng"
+
+    workspaces {
+      name = "multicloud-demo-3-azureapp"
+    }
   }
 }
 
 data "terraform_remote_state" "vnet" {
-  backend = "s3"
+  backend = "remote"
 
   config {
-    bucket = "ael-demo-tf-statefiles"
-    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-vnet.tfstate"
-    region = "us-east-1"
+    hostname     = "app.terraform.io"
+    organization = "SolEng"
+
+    workspaces {
+      name = "multicloud-demo-3-azurevnet"
+    }
   }
 }
 
 data "terraform_remote_state" "rds" {
-  backend = "s3"
+  backend = "remote"
 
   config {
-    bucket = "ael-demo-tf-statefiles"
-    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-app.tfstate"
-    region = "us-east-1"
+    hostname     = "app.terraform.io"
+    organization = "SolEng"
+
+    workspaces {
+      name = "multicloud-demo-3-application"
+    }
   }
 }
 

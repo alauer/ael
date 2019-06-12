@@ -6,15 +6,15 @@ edit network ike crypto-profiles ike-crypto-profiles pureport-ike-crypto
 top
 
 edit network ike gateway ike-pureport-site-0
-  set authentication pre-shared-key key LaUQYFZPXAATdWQmrXZ7ScnCdpPQ8tlgi
+  set authentication pre-shared-key key LTPQt2ZqV2E7NlEGUCh3Y58OqTEoUKbId
   set protocol ikev2 dpd enable yes
   set protocol ikev2 ike-crypto-profile pureport-ike-crypto
   set protocol version ikev2
   set local-address interface ethernet1/1
   set local-address ip 136.56.60.22
-  set peer-address ip 45.40.37.9
+  set peer-address ip 45.40.37.17
   set local-id type ipaddr id 136.56.60.22
-  set peer-id type ipaddr id 45.40.37.9
+  set peer-id type ipaddr id 45.40.37.17
 top
 
 edit network ike crypto-profiles ipsec-crypto-profiles pureport-ipsec-crypto
@@ -41,15 +41,15 @@ edit network virtual-router default
 top
 
 edit network ike gateway ike-pureport-site-1
-  set authentication pre-shared-key key vMy4iijEsWIjIxpOqjaq4eFcQZdHyob2w
+  set authentication pre-shared-key key 6Bi6qAySVzI8y4TYqknCVNHE4KLJWrM3A
   set protocol ikev2 dpd enable yes
   set protocol ikev2 ike-crypto-profile pureport-ike-crypto
   set protocol version ikev2
   set local-address interface ethernet1/1
   set local-address ip 136.56.60.22
-  set peer-address ip 45.40.37.17
+  set peer-address ip 45.40.37.3
   set local-id type ipaddr id 136.56.60.22
-  set peer-id type ipaddr id 45.40.37.17
+  set peer-id type ipaddr id 45.40.37.3
 top
 
 edit network interface tunnel units tunnel.101
@@ -75,8 +75,8 @@ edit network virtual-router default protocol bgp
  set install-route yes
  set reject-default-route yes
  set routing-options as-format 4-byte
- set auth-profile pureport-vpn-0 secret ak52Ol8XIj5c3j7LtfDRr
- set auth-profile pureport-vpn-1 secret xNg4RAagz4FysqZL7r8ir
+ set auth-profile pureport-vpn-0 secret loH2iDB5csjmHtc59NXgU
+ set auth-profile pureport-vpn-1 secret XQyKb202RQYHn5GNILptb
  set enable yes
 top
 
