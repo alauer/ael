@@ -9,6 +9,18 @@ terraform {
   }
 }
 
+data "terraform_remote_state" "pureport" {
+  backend = "remote"
+
+  config {
+    organization = "SolEng"
+
+    workspaces {
+      name = "multicloud-demo-pureport"
+    }
+  }
+}
+
 locals {
   pureport_network          = ["10.20.0.0/16", "10.33.133.0/24", "10.10.10.0/24", "172.16.0.0/16"]
   azure_resource_group_name = "us-east-sol-eng"
@@ -111,5 +123,5 @@ resource "azurerm_virtual_network_gateway_connection" "ael-kb-test" {
   type                       = "ExpressRoute"
   virtual_network_gateway_id = "${azurerm_virtual_network_gateway.ael-wordpress.id}"
 
-  express_route_circuit_id = "${local.expr_id}"
+  express_route_circuit_id = "${data.terraform_remote_state.ael_azure_expr_resourceid}"
 }

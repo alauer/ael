@@ -18,6 +18,10 @@ output "gce_secondary_pairing_key" {
   value = "${google_compute_interconnect_attachment.pureport2.pairing_key}"
 }
 
+output "ael_azure_expr_resourceid" {
+  value = "${azurerm_express_route_circuit.ael-use1-terraform-lab.id}"
+}
+
 /*
 Primary vlan
 Secondary vlan
