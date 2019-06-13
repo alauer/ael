@@ -22,11 +22,10 @@ output "ael_azure_expr_resourceid" {
   value = "${azurerm_express_route_circuit.ael-use1-terraform-lab.id}"
 }
 
-/*
-Primary vlan
-Secondary vlan
-Pureport ASN
-bgp_auth_key_primary
-bgp_auth_key_secondary
-*/
+output "subnets_self_links" {
+  value = "${module.vpc.subnets_self_links}"
+}
 
+output "network_self_link" {
+  value = "${module.vpc.network_self_link}"
+}

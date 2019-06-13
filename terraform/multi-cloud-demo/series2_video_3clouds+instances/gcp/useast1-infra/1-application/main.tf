@@ -1,28 +1,36 @@
 terraform {
-  backend "s3" {
-    bucket = "ael-demo-tf-statefiles"
-    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-gcp-app.tfstate"
-    region = "us-east-1"
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "SolEng"
+
+    workspaces {
+      name = "multicloud-demo-3-gcpapp"
+    }
   }
 }
 
-data "terraform_remote_state" "vpc" {
-  backend = "s3"
+data "terraform_remote_state" "pureport" {
+  backend = "remote"
 
   config {
-    bucket = "ael-demo-tf-statefiles"
-    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-gcp.tfstate"
-    region = "us-east-1"
+    organization = "SolEng"
+
+    workspaces {
+      name = "multicloud-demo-pureport"
+    }
   }
 }
 
 data "terraform_remote_state" "rds" {
-  backend = "s3"
+  backend = "remote"
 
   config {
-    bucket = "ael-demo-tf-statefiles"
-    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-app.tfstate"
-    region = "us-east-1"
+    hostname     = "app.terraform.io"
+    organization = "SolEng"
+
+    workspaces {
+      name = "multicloud-demo-3-application"
+    }
   }
 }
 
@@ -68,7 +76,7 @@ resource "google_compute_instance" "wordpress" {
   }
 
   network_interface {
-    subnetwork = "${data.terraform_remote_state.vpc.subnets_self_links[0]}"
+    subnetwork = "${data.terraform_remote_state.pureport.subnets_self_links[0]}"
 
     access_config {
       // Ephemeral IP
@@ -82,7 +90,7 @@ resource "google_compute_instance" "wordpress" {
 
 resource "google_compute_firewall" "wordpress" {
   name    = "wordpress-demo-pureport"
-  network = "${data.terraform_remote_state.vpc.network_self_link}"
+  network = "${data.terraform_remote_state.pureport.network_self_link}"
 
   allow {
     protocol = "icmp"

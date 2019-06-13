@@ -21,15 +21,6 @@ provider "pureport" {
   alias      = "terraform-testing"
 }
 
-/*
-curl -X POST https://api.pureport.com/login \
-    -H "Content-Type: application/json" \
-    -d '{
-        "key": "73XrDMJd5nKko",
-        "secret": "gEf2eRV2BVEAsywz8"
-    }'
-*/
-
 data "pureport_accounts" "main" {
   provider   = "pureport.terraform-testing"
   name_regex = "AaronCo"

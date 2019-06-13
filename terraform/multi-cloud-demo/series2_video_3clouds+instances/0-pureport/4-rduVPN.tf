@@ -8,8 +8,7 @@ resource "pureport_site_vpn_connection" "raleigh-lab" {
   location_href = "${data.pureport_locations.iad.locations.0.href}"
   network_href  = "${data.pureport_networks.main.networks.0.href}"
 
-  depends_on = ["pureport_aws_connection.ael-use1-terraform-lab", "pureport_azure_connection.ael_westus_terraform_lab", "pureport_google_cloud_connection.main"]
-
+  depends_on  = ["pureport_aws_connection.ael-use1-terraform-lab", "pureport_azure_connection.ael_westus_terraform_lab", "pureport_google_cloud_connection.main"]
   ike_version = "V2"
 
   ike_config {
