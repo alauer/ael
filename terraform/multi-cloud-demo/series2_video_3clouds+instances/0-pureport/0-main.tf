@@ -1,9 +1,4 @@
 terraform {
-  //  backend "s3" {
-  //    bucket = "ael-demo-tf-statefiles"
-  //    key    = "ael-tf-state/videoseries2-3clouds/videoseries2-3clouds-pureport.tfstate"
-  //    region = "us-east-1"
-  //  }
   backend "remote" {
     hostname     = "app.terraform.io"
     organization = "SolEng"
@@ -15,8 +10,8 @@ terraform {
 }
 
 provider "pureport" {
-  api_key    = "73XrDMJd5nKko"
-  api_secret = "gEf2eRV2BVEAsywz8"
+  api_key    = "${var.pureport_api_key}"
+  api_secret = "${var.pureport_api_secret}"
   api_url    = "https://api.pureport.com"
   alias      = "terraform-testing"
 }
