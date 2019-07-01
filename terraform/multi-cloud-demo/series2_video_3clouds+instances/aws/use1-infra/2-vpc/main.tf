@@ -37,6 +37,8 @@ module "vpc" {
     aws = "aws.use1"
   }
 
+  version = "~> 1.66.0"
+
   source                            = "terraform-aws-modules/vpc/aws"
   name                              = "ael-wordpress-demo"
   cidr                              = "10.20.0.0/16"

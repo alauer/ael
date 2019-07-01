@@ -56,6 +56,10 @@ module "dxg" {
   bgp_pureport_asn           = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.0.pureport_asn}"
   pureport_vlan_primary      = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.0.vlan}"
   pureport_vlan_secondary    = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.1.vlan}"
+  bgp_pureport_ip_primary    = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.0.pureport_ip}"
+  bgp_amazon_ip_primary      = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.0.customer_ip}"
+  bgp_pureport_ip_secondary  = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.1.pureport_ip}"
+  bgp_amazon_ip_secondary    = "${data.terraform_remote_state.pureport.ael_use1_terraform_lab.1.customer_ip}"
 
   tags = {
     Terraform   = "true"
