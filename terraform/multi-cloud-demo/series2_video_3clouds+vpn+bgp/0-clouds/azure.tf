@@ -1,37 +1,14 @@
-terraform {
-  backend "remote" {
-    hostname     = "app.terraform.io"
-    organization = "SolEng"
-
-    workspaces {
-      name = "multicloud-demo-3-azurevnet"
-    }
-  }
-}
-
-data "terraform_remote_state" "pureport" {
-  backend = "remote"
-
-  config {
-    organization = "SolEng"
-
-    workspaces {
-      name = "multicloud-demo-pureport"
-    }
-  }
-}
-
 locals {
   pureport_network          = ["10.20.0.0/16", "10.33.133.0/24", "10.10.10.0/24", "172.16.0.0/16"]
   azure_resource_group_name = "us-east-sol-eng"
   azure_location            = "westus"
   azure_peering_location    = "Silicon Valley"
   office_ip                 = "136.41.224.23/32"
-  expr_id                   = "/subscriptions/c0d488be-6472-4d1d-ada5-40914167eeb4/resourceGroups/us-east-sol-eng/providers/Microsoft.Network/expressRouteCircuits/ael-KBexpressRoute1"
 }
 
 provider "azurerm" {
-  version = "=1.24.0"
+  version = "~> 1.24.0"
+  alias   = "azure"
 }
 
 //
@@ -39,7 +16,7 @@ provider "azurerm" {
 //
 
 resource "azurerm_virtual_network" "vnet" {
-  name                = "ael-wordpress-demo"
+  name                = "ael-demo1-demo"
   location            = "${local.azure_location}"
   resource_group_name = "${local.azure_resource_group_name}"
   address_space       = ["172.16.0.0/16"]
@@ -51,9 +28,9 @@ resource "azurerm_virtual_network" "vnet" {
   }
 }
 
-resource "azurerm_subnet" "wordpress1" {
+resource "azurerm_subnet" "demo1" {
   depends_on           = ["azurerm_virtual_network.vnet"]
-  name                 = "wordpress1"
+  name                 = "demo1"
   resource_group_name  = "${local.azure_resource_group_name}"
   virtual_network_name = "${azurerm_virtual_network.vnet.name}"
   address_prefix       = "172.16.33.0/27"
@@ -64,7 +41,7 @@ resource "azurerm_subnet" "wordpress1" {
 //   CREATE VNET GATEWAY AND IT's PUBLIC IP
 //
 //
-resource "azurerm_subnet" "ael-wordpress-gwvnet" {
+resource "azurerm_subnet" "ael-demo1-gwvnet" {
   depends_on           = ["azurerm_virtual_network.vnet"]
   name                 = "GatewaySubnet"
   resource_group_name  = "${local.azure_resource_group_name}"
@@ -72,8 +49,8 @@ resource "azurerm_subnet" "ael-wordpress-gwvnet" {
   address_prefix       = "172.16.33.224/27"
 }
 
-resource "azurerm_public_ip" "ael-wordpress" {
-  name                = "ael-wordpress-pip-vnetgw"
+resource "azurerm_public_ip" "ael-demo1" {
+  name                = "ael-demo1-pip-vnetgw"
   resource_group_name = "${local.azure_resource_group_name}"
   location            = "${local.azure_location}"
 
@@ -86,9 +63,9 @@ resource "azurerm_public_ip" "ael-wordpress" {
   }
 }
 
-resource "azurerm_virtual_network_gateway" "ael-wordpress" {
-  depends_on          = ["azurerm_subnet.ael-wordpress-gwvnet"]
-  name                = "ael-wordpress-vnet-gw1"
+resource "azurerm_virtual_network_gateway" "ael-demo1" {
+  depends_on          = ["azurerm_subnet.ael-demo1-gwvnet"]
+  name                = "ael-demo1-vnet-gw1"
   resource_group_name = "${local.azure_resource_group_name}"
   location            = "${local.azure_location}"
 
@@ -97,10 +74,10 @@ resource "azurerm_virtual_network_gateway" "ael-wordpress" {
   sku        = "Standard"
 
   ip_configuration {
-    name                          = "ael-wordpress-vnetGatewayConfig"
-    public_ip_address_id          = "${azurerm_public_ip.ael-wordpress.id}"
+    name                          = "ael-demo1-vnetGatewayConfig"
+    public_ip_address_id          = "${azurerm_public_ip.ael-demo1.id}"
     private_ip_address_allocation = "Dynamic"
-    subnet_id                     = "${azurerm_subnet.ael-wordpress-gwvnet.id}"
+    subnet_id                     = "${azurerm_subnet.ael-demo1-gwvnet.id}"
   }
 
   tags {
@@ -108,20 +85,4 @@ resource "azurerm_virtual_network_gateway" "ael-wordpress" {
     Environment = "1-expr"
     Owner       = "aaron.lauer"
   }
-}
-
-//
-//  VNET GW CONNECTION TO EXPR
-//
-//
-
-resource "azurerm_virtual_network_gateway_connection" "ael-kb-test" {
-  name                = "ael-wordpress-vnet-gw1-conn"
-  resource_group_name = "${local.azure_resource_group_name}"
-  location            = "${local.azure_location}"
-
-  type                       = "ExpressRoute"
-  virtual_network_gateway_id = "${azurerm_virtual_network_gateway.ael-wordpress.id}"
-
-  express_route_circuit_id = "${data.terraform_remote_state.ael_azure_expr_resourceid}"
 }

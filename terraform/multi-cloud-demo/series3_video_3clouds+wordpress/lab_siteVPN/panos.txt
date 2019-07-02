@@ -1,0 +1,120 @@
+edit network ike crypto-profiles ike-crypto-profiles pureport-ike-crypto
+  set hash [ sha256 sha384 sha512 ]
+  set dh-group [ group5 group14 group19 group20 ]
+  set encryption [ aes-128-cbc aes-192-cbc aes-256-cbc ]
+  set lifetime hours 8
+top
+
+edit network ike gateway ike-pureport-site-0
+  set authentication pre-shared-key key LTPQt2ZqV2E7NlEGUCh3Y58OqTEoUKbId
+  set protocol ikev2 dpd enable yes
+  set protocol ikev2 ike-crypto-profile pureport-ike-crypto
+  set protocol version ikev2
+  set local-address interface ethernet1/1
+  set local-address ip 136.56.60.22
+  set peer-address ip 45.40.37.17
+  set local-id type ipaddr id 136.56.60.22
+  set peer-id type ipaddr id 45.40.37.17
+top
+
+edit network ike crypto-profiles ipsec-crypto-profiles pureport-ipsec-crypto
+ set esp authentication sha256
+ set esp encryption aes-128-cbc
+ set dh-group group14 lifetime seconds 3600
+top
+
+edit network interface tunnel units tunnel.100
+  set ip 169.254.1.1/30
+top
+
+set zone inside network layer3 tunnel.100
+
+edit network tunnel ipsec vpn-ipsec-tunnel-site-0
+  set auto-key ike-gateway ike-pureport-site-0
+  set auto-key ipsec-crypto-profile pureport-ipsec-crypto
+  set tunnel-interface tunnel.100
+  set anti-replay yes
+top
+
+edit network virtual-router default
+ set interface tunnel.100
+top
+
+edit network ike gateway ike-pureport-site-1
+  set authentication pre-shared-key key 6Bi6qAySVzI8y4TYqknCVNHE4KLJWrM3A
+  set protocol ikev2 dpd enable yes
+  set protocol ikev2 ike-crypto-profile pureport-ike-crypto
+  set protocol version ikev2
+  set local-address interface ethernet1/1
+  set local-address ip 136.56.60.22
+  set peer-address ip 45.40.37.3
+  set local-id type ipaddr id 136.56.60.22
+  set peer-id type ipaddr id 45.40.37.3
+top
+
+edit network interface tunnel units tunnel.101
+  set ip 169.254.2.1/30
+top
+
+set zone inside network layer3 tunnel.101
+
+edit network tunnel ipsec vpn-ipsec-tunnel-site-1
+  set auto-key ike-gateway ike-pureport-site-1
+  set auto-key ipsec-crypto-profile pureport-ipsec-crypto
+  set tunnel-interface tunnel.101
+  set anti-replay yes
+top
+
+edit network virtual-router default
+ set interface tunnel.101
+top
+
+edit network virtual-router default protocol bgp
+ set router-id 136.56.60.22
+ set local-as 65001
+ set install-route yes
+ set reject-default-route yes
+ set routing-options as-format 4-byte
+ set auth-profile pureport-vpn-0 secret loH2iDB5csjmHtc59NXgU
+ set auth-profile pureport-vpn-1 secret XQyKb202RQYHn5GNILptb
+ set enable yes
+top
+
+edit network virtual-router default protocol bgp peer-group PureportBGP
+   edit peer pureport-site-0
+    set connection-options authentication pureport-vpn-0
+    set connection-options keep-alive-interval 10
+    set connection-options hold-time 30
+    set subsequent-address-family-identifier unicast yes
+    set local-address ip 169.254.1.1/30
+    set local-address interface tunnel.100
+    set peer-as 394351
+    set peer-address ip 169.254.1.2
+    set enable yes
+top
+
+edit network virtual-router default protocol bgp peer-group PureportBGP
+   edit peer pureport-site-1
+    set connection-options authentication pureport-vpn-1
+    set connection-options keep-alive-interval 10
+    set connection-options hold-time 30
+    set subsequent-address-family-identifier unicast yes
+    set local-address ip 169.254.2.1/30
+    set local-address interface tunnel.101
+    set peer-as 394351
+    set peer-address ip 169.254.2.2
+    set enable yes
+top
+
+edit network virtual-router default protocol redist-profile pureport
+ set filter interface ethernet1/2
+ set filter type connect
+ set priority 2
+ set action redist
+top
+
+edit network virtual-router default protocol bgp redist-rules pureport
+ set enable yes
+ set set-origin incomplete
+ set address-family-identifier ipv4
+top
