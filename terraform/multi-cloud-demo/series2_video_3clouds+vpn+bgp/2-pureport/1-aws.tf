@@ -25,22 +25,22 @@ EOT
 }
 
 resource "aws_dx_private_virtual_interface" "primary" {
-  provider      = "aws.use1"
+  provider = "aws.use1"
   connection_id = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.0.remote_id}"
 
   dx_gateway_id = "${data.terraform_remote_state.cloudinfra.dxg_id}"
 
-  name             = "vif-${pureport_aws_connection.ael-use1-terraform-lab.name}-primary"
-  vlan             = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.0.vlan}"
-  amazon_address   = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.0.customer_ip}"  #This needs to be in a variables file
-  customer_address = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.0.pureport_ip}"  #This needs to be in a variables file
-  bgp_auth_key     = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.0.bgp_password}" #This needs to be in a variables file
-  address_family   = "ipv4"
-  bgp_asn          = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.0.pureport_asn}"
+  name = "vif-${pureport_aws_connection.ael-use1-terraform-lab.name}-primary"
+  vlan = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.0.vlan}"
+  amazon_address = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.0.customer_ip}" #This needs to be in a variables file
+  customer_address = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.0.pureport_ip}" #This needs to be in a variables file
+  bgp_auth_key = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.0.bgp_password}" #This needs to be in a variables file
+  address_family = "ipv4"
+  bgp_asn = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.0.pureport_asn}"
 
   tags = {
-    Terraform   = "true"
-    Owner       = "aaron.lauer"
+    Terraform = "true"
+    Owner = "aaron.lauer"
     Environment = "2-pureport"
   }
 
@@ -52,22 +52,22 @@ resource "aws_dx_private_virtual_interface" "primary" {
 }
 
 resource "aws_dx_private_virtual_interface" "secondary" {
-  provider      = "aws.use1"
+  provider = "aws.use1"
   connection_id = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.1.remote_id}"
 
   dx_gateway_id = "${data.terraform_remote_state.cloudinfra.dxg_id}"
 
-  name             = "vif-${pureport_aws_connection.ael-use1-terraform-lab.name}-secondary"
-  vlan             = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.1.vlan}"
-  amazon_address   = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.1.customer_ip}"  #This needs to be in a variables file
-  customer_address = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.1.pureport_ip}"  #This needs to be in a variables file
-  bgp_auth_key     = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.1.bgp_password}" #This needs to be in a variables file
-  address_family   = "ipv4"
-  bgp_asn          = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.1.pureport_asn}" #This needs to be in a variables file
+  name = "vif-${pureport_aws_connection.ael-use1-terraform-lab.name}-secondary"
+  vlan = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.1.vlan}"
+  amazon_address = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.1.customer_ip}" #This needs to be in a variables file
+  customer_address = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.1.pureport_ip}" #This needs to be in a variables file
+  bgp_auth_key = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.1.bgp_password}" #This needs to be in a variables file
+  address_family = "ipv4"
+  bgp_asn = "${pureport_aws_connection.ael-use1-terraform-lab.gateways.1.pureport_asn}" #This needs to be in a variables file
 
   tags = {
-    Terraform   = "true"
-    Owner       = "aaron.lauer"
+    Terraform = "true"
+    Owner = "aaron.lauer"
     Environment = "2-pureport"
   }
 

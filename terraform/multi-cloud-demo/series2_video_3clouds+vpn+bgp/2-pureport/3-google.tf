@@ -31,7 +31,8 @@ resource "google_compute_interconnect_attachment" "pureport2" {
 }
 
 module "vpc" {
-  source = "terraform-google-modules/network/google"
+  source  = "terraform-google-modules/network/google"
+  version = "1.0.0"
 
   providers = {
     google = "google.gce"

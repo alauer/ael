@@ -40,11 +40,11 @@ data "pureport_networks" "main" {
 data "terraform_remote_state" "cloudinfra" {
   backend = "remote"
 
-  config {
+  config = {
     hostname     = "app.terraform.io"
     organization = "SolEng"
 
-    workspaces {
+    workspaces = {
       name = "multicloud-video-cloudinfra"
     }
   }

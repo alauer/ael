@@ -26,7 +26,7 @@ variable "create_expr_peering" {
 }
 
 provider "azurerm" {
-  version = "= 1.24.0"
+  version = "~> 1.31.0"
   alias   = "azure"
 }
 
@@ -81,7 +81,7 @@ resource "azurerm_express_route_circuit_peering" "test" {
 //
 
 resource "azurerm_virtual_network_gateway_connection" "ael-demo1-video" {
-  depends_on          = ["pureport_azure_connection.ael_westus_terraform_lab"]
+  depends_on          = ["aws_dx_private_virtual_interface.secondary", "pureport_azure_connection.ael_westus_terraform_lab", "azurerm_express_route_circuit.ael-use1-terraform-lab", "azurerm_express_route_circuit_peering.test"]
   name                = "ael-demo1-vnet-gw1-conn"
   resource_group_name = "${var.azure_resource_group_name}"
   location            = "${var.azure_location}"
