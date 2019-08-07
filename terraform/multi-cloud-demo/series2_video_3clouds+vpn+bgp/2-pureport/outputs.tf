@@ -21,4 +21,3 @@ output "gce_secondary_pairing_key" {
 output "ael_azure_expr_resourceid" {
   value = azurerm_express_route_circuit.ael-use1-terraform-lab.id
 }
-

@@ -38,7 +38,7 @@ data "pureport_locations" "sjc" {
   provider = pureport.terraform-testing
   filter {
     name   = "Name"
-    values = ["Silicon Valley, CA"]
+    values = ["Dallas, TX"]
   }
 }
 

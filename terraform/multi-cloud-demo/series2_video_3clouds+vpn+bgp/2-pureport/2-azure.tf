@@ -1,19 +1,21 @@
+
 variable "azure_resource_group_name" {
   default = "us-east-sol-eng"
 }
 
 variable "azure_location" {
-  default = "westus"
+  default = "southcentralus"
 }
 
 variable "azure_peering_location" {
   type = map(string)
 
   default = {
-    "westus"  = "Silicon Valley"
-    "westus2" = "Seattle"
-    "eastus"  = "Washington DC"
-    "eastus2" = "Washington DC"
+    "westus"         = "Silicon Valley"
+    "westus2"        = "Seattle"
+    "eastus"         = "Washington DC"
+    "eastus2"        = "Washington DC"
+    "southcentralus" = "Dallas"
   }
 }
 
@@ -32,7 +34,7 @@ provider "azurerm" {
 
 resource "pureport_azure_connection" "ael_westus_terraform_lab" {
   provider          = pureport.terraform-testing
-  name              = "ael-westus-terraform-lab"
+  name              = "ael-dallas-terraform-lab"
   speed             = "50"
   high_availability = true
 
@@ -44,7 +46,7 @@ resource "pureport_azure_connection" "ael_westus_terraform_lab" {
 
 resource "azurerm_express_route_circuit" "ael-use1-terraform-lab" {
   provider              = azurerm.azure
-  name                  = "ael-use1-terraform-lab"
+  name                  = "ael-dallas-terraform-lab"
   resource_group_name   = var.azure_resource_group_name
   location              = var.azure_location                             #This needs to be in a variables file
   service_provider_name = "Equinix"                                      #This needs to be in a variables file

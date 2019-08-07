@@ -1,8 +1,8 @@
 locals {
   pureport_network          = ["10.20.0.0/16", "10.33.133.0/24", "10.10.10.0/24", "172.16.0.0/16"]
   azure_resource_group_name = "us-east-sol-eng"
-  azure_location            = "westus"
-  azure_peering_location    = "Silicon Valley"
+  azure_location            = "southcentralus"
+  azure_peering_location    = "Dallas"
   office_ip                 = "136.41.224.23/32"
 }
 
@@ -86,4 +86,3 @@ resource "azurerm_virtual_network_gateway" "ael-demo1" {
     Owner       = "aaron.lauer"
   }
 }
-
