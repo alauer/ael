@@ -65,7 +65,7 @@ resource "azurerm_express_route_circuit" "ael-use1-terraform-lab" {
 
 resource "azurerm_express_route_circuit_peering" "test" {
   provider                      = "azurerm.azure"
-  count                         = "${var.create_expr_peering ? 1 :0}"
+  count                         = "${var.create_expr_peering ? 1 : 0}"
   peering_type                  = "AzurePrivatePeering"
   express_route_circuit_name    = "${azurerm_express_route_circuit.ael-use1-terraform-lab.name}"
   resource_group_name           = "${var.azure_resource_group_name}"

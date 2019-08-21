@@ -9,8 +9,8 @@ module "vpc" {
 
   cidr = "10.0.0.0/16"
 
-  azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
-  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+  azs            = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  public_subnets = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 
   assign_generated_ipv6_cidr_block = false
 
@@ -30,21 +30,21 @@ module "vpc" {
 
 
 resource "aws_security_group" "allow_all" {
-  name = "allow_all_ael"
+  name        = "allow_all_ael"
   description = "Allow all inbound traffic AEL test"
-  vpc_id = "${module.vpc.vpc_id}"
+  vpc_id      = "${module.vpc.vpc_id}"
 
   ingress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["136.41.224.23/32"]
   }
 
   egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 

@@ -49,28 +49,28 @@ EOF
 
 locals {
   pureport_network = ["10.20.0.0/16", "10.33.133.0/24", "10.10.10.0/24", "172.16.0.0/16"]
-  office_ip        = "136.41.224.23/32"
-  project          = "pureport-sol-eng-1"
-  region           = "us-east4"
+  office_ip = "136.41.224.23/32"
+  project = "pureport-sol-eng-1"
+  region = "us-east4"
 }
 
 provider "google" {
   credentials = "${file("/Users/alauer/.gcloud/pureport-sol-eng-1-1f4c0aed51c7.json")}"
-  project     = "${local.project}"
-  region      = "${local.region}"
-  version     = "~> 2.5"
+  project = "${local.project}"
+  region = "${local.region}"
+  version = "~> 2.5"
 }
 
 resource "google_compute_instance" "wordpress" {
-  name         = "ael-wordpress-demo-1"
+  name = "ael-wordpress-demo-1"
   machine_type = "f1-micro"
-  zone         = "${local.region}-c"
-  project      = "${local.project}"
+  zone = "${local.region}-c"
+  project = "${local.project}"
 
   boot_disk {
     initialize_params {
-      size  = 10
-      type  = "pd-standard"
+      size = 10
+      type = "pd-standard"
       image = "projects/pureport-sol-eng-1/global/images/ael-wordpress-image-1"
     }
   }
@@ -89,7 +89,7 @@ resource "google_compute_instance" "wordpress" {
 }
 
 resource "google_compute_firewall" "wordpress" {
-  name    = "wordpress-demo-pureport"
+  name = "wordpress-demo-pureport"
   network = "${data.terraform_remote_state.pureport.network_self_link}"
 
   allow {
@@ -98,6 +98,6 @@ resource "google_compute_firewall" "wordpress" {
 
   allow {
     protocol = "tcp"
-    ports    = ["80", "22"]
+    ports = ["80", "22"]
   }
 }
