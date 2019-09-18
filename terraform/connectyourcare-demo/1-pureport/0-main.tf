@@ -1,3 +1,4 @@
+
 terraform {
   backend "remote" {
     hostname     = "app.terraform.io"
@@ -16,52 +17,6 @@ provider "pureport" {
   alias      = "terraform-demo"
 }
 
-data "pureport_accounts" "main" {
-  provider = pureport.terraform-demo
-
-  //name     = "AaronCo*"
-  filter {
-    name   = "Name"
-    values = ["AaronCo"]
-  }
-}
-
-data "pureport_locations" "chi" {
-  provider = pureport.terraform-demo
-  filter {
-    name   = "Name"
-    values = ["Chicago, IL"]
-  }
-}
-
-data "pureport_locations" "sjc" {
-  provider = pureport.terraform-demo
-  filter {
-    name   = "Name"
-    values = ["Dallas, TX"]
-  }
-}
-
-data "pureport_networks" "main" {
-  provider     = pureport.terraform-demo
-  account_href = data.pureport_accounts.main.accounts[0].href
-  filter {
-    name   = "Name"
-    values = ["ConnectYourCare"]
-  }
-}
-
-data "terraform_remote_state" "cloudinfra" {
-  backend = "remote"
-
-  config = {
-    hostname     = "app.terraform.io"
-    organization = "SolEng"
-    workspaces = {
-      name = "rancher-multicloud-infra"
-    }
-  }
-}
 provider "aws" {
   region = "us-east-1"
   alias  = "use1"
@@ -77,7 +32,32 @@ provider "aws" {
   alias  = "usw1"
 }
 
-provider "aws" {
-  region = "us-east-2"
-  alias  = "use2"
+data "pureport_accounts" "main" {
+  provider = pureport.terraform-demo
+
+  filter {
+    name   = "Name"
+    values = ["AaronCo"]
+  }
+}
+
+data "pureport_networks" "main" {
+  provider     = pureport.terraform-demo
+  account_href = data.pureport_accounts.main.accounts[0].href
+  filter {
+    name   = "Name"
+    values = ["ael-soleng-demo"]
+  }
+}
+
+data "terraform_remote_state" "cloudinfra" {
+  backend = "remote"
+
+  config = {
+    hostname     = "app.terraform.io"
+    organization = "SolEng"
+    workspaces = {
+      name = "connectyourcare-infra"
+    }
+  }
 }
